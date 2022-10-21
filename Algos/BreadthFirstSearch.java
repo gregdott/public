@@ -31,17 +31,17 @@ public class BreadthFirstSearch {
         
         //-----------------------------------------------------------------------
         // Iterative:
-        // BFSIterative(g, 0);
+        BFSIterative(g, 0);
         //-----------------------------------------------------------------------
 
         //-----------------------------------------------------------------------
         // Recursive:
-        List<Integer> nodesToVisit = new ArrayList<Integer>();
+        /*List<Integer> nodesToVisit = new ArrayList<Integer>();
         List<Integer> nodesVisited = new ArrayList<Integer>();
 
         nodesToVisit.add(0);
 
-        BFSRecursive(g, nodesVisited, nodesToVisit);
+        BFSRecursive(g, nodesVisited, nodesToVisit);*/
         //-----------------------------------------------------------------------
     }
 
@@ -55,7 +55,7 @@ public class BreadthFirstSearch {
 
         int currentNode;
 
-        if (nodesToVisit.size() == 0) {
+        if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
             currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
         } else {
             currentNode = nodesToVisit.get(0); // Get next node to visit
@@ -96,11 +96,16 @@ public class BreadthFirstSearch {
         
         while (!allNodesVisited) {
 
-            currentNode = nodesToVisit.get(0); // get next node to visit
+            //currentNode = nodesToVisit.get(0); // get next node to visit
+            if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
+                currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+            } else {
+                currentNode = nodesToVisit.get(0); // Get next node to visit
+                nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
+            }
+
             nodesVisited.add(currentNode);
             System.out.println(currentNode);
-
-            nodesToVisit.remove(0); // remove from array keeping track of which nodes we need to visit
             
             List<Integer> neighbours = adjList.get(currentNode);
 
