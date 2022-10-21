@@ -24,13 +24,14 @@ import Utils.Graph.*;
  */
 public class BreadthFirstSearch {
     public static void main(String args[])  {
-        int[][] edges = {{0, 1}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 5}, {3, 4}, {3, 5}, {4, 5}};
+        //int[][] edges = {{0, 1}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 5}, {3, 4}, {3, 5}, {4, 5}};
+        int [][] edges = {{1, 2}, {1, 3}, {1, 4}, {2, 5}, {2, 6}, {5, 9}, {5, 10}, {4, 7}, {4, 8}, {7, 11}, {7, 12}};
 
-        Graph g = new Graph(edges);
-
+        Graph g = new Graph(edges, 15);
+        
         //-----------------------------------------------------------------------
         // Iterative:
-        //BFSIterative(g, 0);
+        // BFSIterative(g, 0);
         //-----------------------------------------------------------------------
 
         //-----------------------------------------------------------------------
@@ -48,15 +49,21 @@ public class BreadthFirstSearch {
         // This will work somewhat similarly to the recursive version...
         // What is our termination condition? All nodes have been visited
         
-        if (nodesVisited.size() == g.getNodes().size()) {
+        if (nodesVisited.size() == g.getNumNodes()) {
             return;
         }
 
-        int currentNode = nodesToVisit.get(0); // Get next node to visit
+        int currentNode;
+
+        if (nodesToVisit.size() == 0) {
+            currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+        } else {
+            currentNode = nodesToVisit.get(0); // Get next node to visit
+            nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
+        }
+
         nodesVisited.add(currentNode);
         System.out.println(currentNode);
-
-        nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
 
         List<Integer> neighbours = g.getAdjList().get(currentNode);
 
@@ -105,7 +112,7 @@ public class BreadthFirstSearch {
 
             System.out.println("NODES TO VISIT: " + nodesToVisit.toString());
 
-            if (nodesVisited.size() == g.getNodes().size()) {
+            if (nodesVisited.size() == g.getNumNodes()) {
                 allNodesVisited = true;
             }
         }
