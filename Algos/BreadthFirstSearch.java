@@ -30,8 +30,6 @@ import Utils.Graph.*;
  * Terminating condition: All nodes have been explored. So we need a list containing explored nodes, along with a list of nodes to explore.
  * Then each iteration we check explored nodes against nodelist and terminate if they contain the same elements. size() gives quickest reflection.
  * 
- * NB need to fix for exception case I just found. Incrementing is not a valid approach when graph is disconnected. Unless we have some weird assumptions but let's avoid that
- * What we need is a list of nodes not yet visited. This starts off as the list of all nodes.
  */
 
 public class BreadthFirstSearch {
@@ -48,7 +46,7 @@ public class BreadthFirstSearch {
         System.out.println("Breadth First Search (Iterative):");
 
         BFSIterative(g, 0);
-        
+
         System.out.println("----------------------------------------------------");
         //-----------------------------------------------------------------------
 
@@ -88,7 +86,7 @@ public class BreadthFirstSearch {
         
         while (!allNodesVisited) {
             if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
-                // currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+                System.out.println("Found a disconnect. Moving to next unvisited node.");
                 currentNode = nodesNotVisited.get(0);
             } else {
                 currentNode = nodesToVisit.get(0); // Get next node to visit
@@ -139,7 +137,7 @@ public class BreadthFirstSearch {
         int currentNode;
 
         if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node           
-            //currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+            System.out.println("Found a disconnect. Moving to next unvisited node.");
             currentNode = nodesNotVisited.get(0);
         } else {
             currentNode = nodesToVisit.get(0); // Get next node to visit
