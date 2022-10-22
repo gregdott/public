@@ -20,7 +20,7 @@ import java.util.*;
 
 public class Graph {
     private List<Edge> edgeList;
-    //private List<Integer> nodeList; // Just a list of numbered nodes.
+    private List<Integer> nodeList; // Just a list of numbered nodes.
     private List<List<Integer>> adjList;
     private int numNodes;
 
@@ -32,7 +32,7 @@ public class Graph {
     public Graph(int[][] edges, int numNodes) {
         this.numNodes = numNodes;
         edgeList = new ArrayList<Edge>();
-        //nodeList = new ArrayList<Integer>();
+        nodeList = new ArrayList<Integer>();
         adjList = new ArrayList<List<Integer>>();
 
         for (int i = 0; i < edges.length; i++) {
@@ -42,19 +42,12 @@ public class Graph {
 
             Edge newEdge = new Edge(source, dest);
             edgeList.add(newEdge);
-
-            // if (!nodeList.contains(source)) {
-            //     nodeList.add(source);
-            // }
-            
-            // if (!nodeList.contains(dest)) {
-            //     nodeList.add(dest);
-            // }
         }
         
         // Initialise each list in the adjacency list
         for (int i = 0; i < numNodes; i++) {
             adjList.add(new ArrayList<Integer>());
+            nodeList.add(i);
         }
 
         // Create adjacency list from edges
@@ -71,6 +64,10 @@ public class Graph {
 
     public int getNumNodes() {
         return numNodes;
+    }
+
+    public List<Integer> getNodeList() {
+        return nodeList;
     }
 
     // debug function for checking adjList is correctly populated

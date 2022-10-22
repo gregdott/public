@@ -31,6 +31,7 @@ import Utils.Graph.*;
  * Then each iteration we check explored nodes against nodelist and terminate if they contain the same elements. size() gives quickest reflection.
  * 
  * NB need to fix for exception case I just found. Incrementing is not a valid approach when graph is disconnected. Unless we have some weird assumptions but let's avoid that
+ * What we need is a list of nodes not yet visited. This starts off as the list of all nodes.
  */
 
 public class BreadthFirstSearch {
@@ -45,7 +46,9 @@ public class BreadthFirstSearch {
         // Iterative:
         System.out.println("----------------------------------------------------");
         System.out.println("Breadth First Search (Iterative):");
+
         BFSIterative(g, 0);
+        
         System.out.println("----------------------------------------------------");
         //-----------------------------------------------------------------------
 
@@ -53,12 +56,14 @@ public class BreadthFirstSearch {
         // Recursive:
         System.out.println("----------------------------------------------------");
         System.out.println("Breadth First Search (Recursive):");
+
         List<Integer> nodesToVisit = new ArrayList<Integer>();
         List<Integer> nodesVisited = new ArrayList<Integer>();
-
+        List<Integer> nodesNotVisited = new ArrayList<>(g.getNodeList()); // list of nodes not visited yet. we shallow copy so we don't edit what is on the object
         nodesToVisit.add(0);
 
-        BFSRecursive(g, nodesVisited, nodesToVisit);
+        BFSRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
+
         System.out.println("----------------------------------------------------");
         
         //-----------------------------------------------------------------------
@@ -72,9 +77,10 @@ public class BreadthFirstSearch {
      * @param startNode the node we are beginning the search from
      */
     public static void BFSIterative(Graph g, int startNode) {
-        List<List<Integer>> adjList = g.getAdjList();
+        List<List<Integer>> adjList = g.getAdjList(); // get adjacency list from graph
         List<Integer> nodesVisited = new ArrayList<Integer>(); // list of nodes visited so far
         List<Integer> nodesToVisit = new ArrayList<Integer>(); // list of nodes to visit (in order)
+        List<Integer> nodesNotVisited = new ArrayList<>(g.getNodeList()); // list of nodes not visited yet. we shallow copy so we don't edit what is on the object
         boolean allNodesVisited = false;
         int currentNode;
         
@@ -82,15 +88,19 @@ public class BreadthFirstSearch {
         
         while (!allNodesVisited) {
             if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
-                // *********** NB FIX THIS with another list!
-                currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+                // currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+                currentNode = nodesNotVisited.get(0);
             } else {
                 currentNode = nodesToVisit.get(0); // Get next node to visit
                 nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
             }
-
-            nodesVisited.add(currentNode);
+            
             System.out.println(currentNode);
+
+            nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode));
+            nodesVisited.add(currentNode);
+
+            
             
             List<Integer> neighbours = adjList.get(currentNode);
 
@@ -117,8 +127,9 @@ public class BreadthFirstSearch {
      * @param g graph containing an adjacency list
      * @param nodesVisited list of nodes visited so far
      * @param nodesToVisit list of nodes to visit (in order)
+     * @param nodesNotVisited list of nodes not visited yet
      */
-    public static void BFSRecursive(Graph g, List<Integer> nodesVisited, List<Integer> nodesToVisit) {
+    public static void BFSRecursive(Graph g, List<Integer> nodesVisited, List<Integer> nodesToVisit, List<Integer> nodesNotVisited) {
         
         // Termination condition: All nodes have been visited
         if (nodesVisited.size() == g.getNumNodes()) {
@@ -127,16 +138,20 @@ public class BreadthFirstSearch {
 
         int currentNode;
 
-        if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
-            // *********** NB FIX THIS with another list!
-            currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+        if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node           
+            //currentNode = nodesVisited.get(nodesVisited.size() - 1) + 1; // go to the next node in the sequence when we can go no further.
+            currentNode = nodesNotVisited.get(0);
         } else {
             currentNode = nodesToVisit.get(0); // Get next node to visit
             nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
         }
 
-        nodesVisited.add(currentNode);
         System.out.println(currentNode);
+        
+        nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode));
+        nodesVisited.add(currentNode);
+
+        
 
         List<Integer> neighbours = g.getAdjList().get(currentNode);
 
@@ -149,6 +164,6 @@ public class BreadthFirstSearch {
 
         System.out.println("NODES TO VISIT: " + nodesToVisit.toString());
 
-        BFSRecursive(g, nodesVisited, nodesToVisit);
+        BFSRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
     }
 }
