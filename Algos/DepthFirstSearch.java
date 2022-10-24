@@ -28,7 +28,7 @@ import Utils.Graph.*;
  * 
  * In order to keep track of where we are in the graph (so that we can backtrack once we hit a dead end), we use an ArrayList
  * that keeps track of our current path. We also use an ArrayList that keeps track of which nodes we have visited. We need both
- * of these to traverse the graph.
+ * of these to traverse the graph (at least in this implementation).
  */
 
 public class DepthFirstSearch {
@@ -43,7 +43,7 @@ public class DepthFirstSearch {
         System.out.println("----------------------------------------------------");
         System.out.println("Depth First Search (Iterative):");
 
-        //DFSIterative(g, startNode);
+        DFSIterative(g, startNode);
 
         System.out.println("----------------------------------------------------");
         //-----------------------------------------------------------------------
@@ -66,106 +66,126 @@ public class DepthFirstSearch {
         
     }
 
-    public static void DFSRecursive(Graph g, List<Integer> nodesVisited, List<Integer> currentPath, List<Integer> nodesNotVisited) {
-        if (nodesVisited.size() == g.getNumNodes()) {
-            return;
-        }
-
-        int currentNode;
-
-        if (currentPath.size() == 0) {
-            System.out.println("Found a disconnect. Moving to next unvisited node.");
-            currentNode = nodesNotVisited.get(0);
-            currentPath.add(currentNode);
-        } else {
-            currentNode = currentPath.get(currentPath.size() - 1); // get last element on current path.
-        }
-
-        System.out.println("CURRENT NODE: " + currentNode);
-
-        List<Integer> neighbours = g.getAdjList().get(currentNode);
-
-        boolean allNeighboursVisited = true;
-        for (Integer neighbour: neighbours) {
-            if (!nodesVisited.contains(neighbour) && !currentPath.contains(neighbour) && neighbour != currentNode) {
-                allNeighboursVisited = false;
-                currentPath.add(neighbour);
-                break;
-            }
-        }
-
-        if (allNeighboursVisited) {
-            // Backtrack to previous node
-            if (currentPath.size() > 0) {
-                currentPath.remove(currentPath.size() - 1); // remove last element on current path so we go back up the tree.
-            }
-            
-            nodesVisited.add(currentNode); // add current node to nodes visited (we have explored all neighbours)
-            
-            if (nodesNotVisited.contains(currentNode)) {
-                nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode)); // remove current node from nodes not visited (and not already removed)
-            }
-        }
-
-        System.out.println(currentPath.toString());
-
-        DFSRecursive(g, nodesVisited, currentPath, nodesNotVisited);
-        
-    }
-
+    /**
+    * DFSIterative - iterative implementation of the Depth-First Search Algorithm
+    * Prints out nodes visited in order along with the current path
+    * Nodes are only considered visited (added to nodesVisited & removed from nodesNotVisited) once we have explored all of their neighbours.
+    * 
+    * @param g graph containing an adjacency list
+    * @param startNode the node that we start exploring the graph from
+    * 
+    */
     public static void DFSIterative(Graph g, int startNode) {
         int currentNode;
         List<Integer> nodesVisited, currentPath, nodesNotVisited;
         List<List<Integer>> adjList;
 
-        nodesVisited = new ArrayList<Integer>();
-        currentPath = new ArrayList<Integer>();
-        nodesNotVisited = new ArrayList<Integer>(g.getNodeList());
+        nodesVisited = new ArrayList<Integer>(); // list of nodes visited so far
+        currentPath = new ArrayList<Integer>(); // path describing where we started, and which nodes we have travelled along to reach the current node.
+        nodesNotVisited = new ArrayList<Integer>(g.getNodeList()); //nodes that we have not visited yet.
         adjList = g.getAdjList();
         
         currentPath.add(startNode);
-        int count = 0; // DEBUG
 
-        while (nodesVisited.size() < g.getNumNodes() || count > 30) {
-            count++;
+        // Loop until we have visited all nodes
+        while (nodesVisited.size() < g.getNumNodes()) {
 
             if (currentPath.size() == 0) {
+                // No nodes in current path, but graph has not been exhausted, so we have reached a disconnect. Proceed to the first node in nodesNotVisited
                 System.out.println("Found a disconnect. Moving to next unvisited node.");
                 currentNode = nodesNotVisited.get(0);
                 currentPath.add(currentNode);
             } else {
-                currentNode = currentPath.get(currentPath.size() - 1); // get last element on current path.
+                currentNode = currentPath.get(currentPath.size() - 1); // Get last element on current path. Our current node...
             }
             
 
             System.out.println("CURRENT NODE: " + currentNode);
 
             List<Integer> neighbours = adjList.get(currentNode);
-
             boolean allNeighboursVisited = true;
+
+            // Loop through neighbours of current node. 
+            // If we have not visited the neighbour, and the neighbour is not on our current path, add it to the current path & continue exploring that node
             for (Integer neighbour: neighbours) {
-                if (!nodesVisited.contains(neighbour) && !currentPath.contains(neighbour) && neighbour != currentNode) {
+                if (!nodesVisited.contains(neighbour) && !currentPath.contains(neighbour)) {
                     allNeighboursVisited = false;
                     currentPath.add(neighbour);
                     break;
                 }
             }
 
+            // All neighbours of the current node have been visited.
             if (allNeighboursVisited) {
-                // Backtrack to previous node
                 if (currentPath.size() > 0) {
                     currentPath.remove(currentPath.size() - 1); // remove last element on current path so we go back up the tree.
                 }
                 
                 nodesVisited.add(currentNode); // add current node to nodes visited (we have explored all neighbours)
                 
-                if (nodesNotVisited.contains(currentNode)) {
-                    nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode)); // remove current node from nodes not visited (and not already removed)
-                }
+                nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode)); // remove current node from nodes not visited (and not already removed)
             }
 
             System.out.println(currentPath.toString());
-            
         }
+    }
+
+    /**
+     * DFSRecursive - recursive implementation of the Depth-First Search Algorithm
+     * Prints out nodes visited in order along with the current path
+     * Nodes are only considered visited (added to nodesVisited & removed from nodesNotVisited) once we have explored all of their neighbours.
+     * 
+     * @param g graph containing an adjacency list
+     * @param nodesVisited list of nodes visited so far
+     * @param currentPath path describing where we started, and which nodes we have travelled along to reach the current node.
+     * @param nodesNotVisited nodes that we have not visited yet.
+     * 
+     */
+    public static void DFSRecursive(Graph g, List<Integer> nodesVisited, List<Integer> currentPath, List<Integer> nodesNotVisited) {
+        if (nodesVisited.size() == g.getNumNodes()) { // All nodes have been visited
+            return;
+        }
+
+        int currentNode;
+
+        if (currentPath.size() == 0) {
+            // No nodes in current path, but graph has not been exhausted, so we have reached a disconnect. Proceed to the first node in nodesNotVisited
+            System.out.println("Found a disconnect. Moving to next unvisited node.");
+            currentNode = nodesNotVisited.get(0);
+            currentPath.add(currentNode);
+        } else {
+            currentNode = currentPath.get(currentPath.size() - 1); // Get last element on current path. Our current node...
+        }
+
+        System.out.println("CURRENT NODE: " + currentNode);
+
+        List<Integer> neighbours = g.getAdjList().get(currentNode);
+        boolean allNeighboursVisited = true;
+
+        // Loop through neighbours of current node. 
+        // If we have not visited the neighbour, and the neighbour is not on our current path, add it to the current path & continue exploring that node
+        for (Integer neighbour: neighbours) {
+            if (!nodesVisited.contains(neighbour) && !currentPath.contains(neighbour)) {
+                allNeighboursVisited = false;
+                currentPath.add(neighbour);
+                break;
+            }
+        }
+
+        // All neighbours of the current node have been visited.
+        if (allNeighboursVisited) {
+            
+            if (currentPath.size() > 0) {
+                currentPath.remove(currentPath.size() - 1); // Remove last element on current path so we go back up the tree.
+            }
+            
+            nodesVisited.add(currentNode); // Add current node to nodes visited (we have explored all neighbours, so now we can say the node certainly has been visited)
+                       
+            nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode)); // remove current node from nodes not visited (and not already removed)
+        }
+
+        System.out.println(currentPath.toString());
+
+        DFSRecursive(g, nodesVisited, currentPath, nodesNotVisited);
     }
 }
