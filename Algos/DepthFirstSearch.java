@@ -43,7 +43,7 @@ public class DepthFirstSearch {
         System.out.println("----------------------------------------------------");
         System.out.println("Depth First Search (Iterative):");
 
-        DFSIterative(g, startNode);
+        depthFirstSearchIterative(g, startNode);
 
         System.out.println("----------------------------------------------------");
         //-----------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class DepthFirstSearch {
         nodesNotVisited = new ArrayList<Integer>(g.getNodeList());
 
         currentPath.add(startNode);
-        DFSRecursive(g, nodesVisited, currentPath, nodesNotVisited);
+        depthFirstSearchRecursive(g, nodesVisited, currentPath, nodesNotVisited);
 
         System.out.println("----------------------------------------------------");
         //-----------------------------------------------------------------------
@@ -67,7 +67,7 @@ public class DepthFirstSearch {
     }
 
     /**
-    * DFSIterative - iterative implementation of the Depth-First Search Algorithm
+    * depthFirstSearchIterative - iterative implementation of the Depth-First Search Algorithm
     * Prints out nodes visited in order along with the current path
     * Nodes are only considered visited (added to nodesVisited & removed from nodesNotVisited) once we have explored all of their neighbours.
     * 
@@ -75,7 +75,7 @@ public class DepthFirstSearch {
     * @param startNode the node that we start exploring the graph from
     * 
     */
-    public static void DFSIterative(Graph g, int startNode) {
+    public static void depthFirstSearchIterative(Graph g, int startNode) {
         int currentNode;
         List<Integer> nodesVisited, currentPath, nodesNotVisited;
         List<List<Integer>> adjList;
@@ -131,7 +131,7 @@ public class DepthFirstSearch {
     }
 
     /**
-     * DFSRecursive - recursive implementation of the Depth-First Search Algorithm
+     * depthFirstSearchRecursive - recursive implementation of the Depth-First Search Algorithm
      * Prints out nodes visited in order along with the current path
      * Nodes are only considered visited (added to nodesVisited & removed from nodesNotVisited) once we have explored all of their neighbours.
      * 
@@ -141,7 +141,7 @@ public class DepthFirstSearch {
      * @param nodesNotVisited nodes that we have not visited yet.
      * 
      */
-    public static void DFSRecursive(Graph g, List<Integer> nodesVisited, List<Integer> currentPath, List<Integer> nodesNotVisited) {
+    public static void depthFirstSearchRecursive(Graph g, List<Integer> nodesVisited, List<Integer> currentPath, List<Integer> nodesNotVisited) {
         if (nodesVisited.size() == g.getNumNodes()) { // All nodes have been visited
             return;
         }
@@ -186,6 +186,6 @@ public class DepthFirstSearch {
 
         System.out.println(currentPath.toString());
 
-        DFSRecursive(g, nodesVisited, currentPath, nodesNotVisited);
+        depthFirstSearchRecursive(g, nodesVisited, currentPath, nodesNotVisited);
     }
 }

@@ -45,7 +45,7 @@ public class BreadthFirstSearch {
         System.out.println("----------------------------------------------------");
         System.out.println("Breadth First Search (Iterative):");
 
-        BFSIterative(g, 0);
+        breadthFirstSearchIterative(g, 0);
 
         System.out.println("----------------------------------------------------");
         //-----------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class BreadthFirstSearch {
         List<Integer> nodesNotVisited = new ArrayList<>(g.getNodeList()); // list of nodes not visited yet. we shallow copy so we don't edit what is on the object
         nodesToVisit.add(0);
 
-        BFSRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
+        breadthFirstSearchRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
 
         System.out.println("----------------------------------------------------");
         
@@ -68,13 +68,13 @@ public class BreadthFirstSearch {
     }
 
     /**
-     * BFSIterative - implementation of Breadth First Search algorithm using an iterative approach.
+     * breadthFirstSearchIterative - implementation of Breadth First Search algorithm using an iterative approach.
      * Prints out nodes visited in order along with the current list of nodes to visit.
      * 
      * @param g graph containing an adjacency list
      * @param startNode the node we are beginning the search from
      */
-    public static void BFSIterative(Graph g, int startNode) {
+    public static void breadthFirstSearchIterative(Graph g, int startNode) {
         List<List<Integer>> adjList = g.getAdjList(); // get adjacency list from graph
         List<Integer> nodesVisited = new ArrayList<Integer>(); // list of nodes visited so far
         List<Integer> nodesToVisit = new ArrayList<Integer>(); // list of nodes to visit (in order)
@@ -114,7 +114,7 @@ public class BreadthFirstSearch {
     }
 
     /**
-     * BFSRecursive - implementation of Breadth First Search algorithm using a recursive approach.
+     * breadthFirstSearchRecursive - implementation of Breadth First Search algorithm using a recursive approach.
      * Prints out nodes visited in order along with the current list of nodes to visit.
      *     
      * @param g graph containing an adjacency list
@@ -122,7 +122,7 @@ public class BreadthFirstSearch {
      * @param nodesToVisit list of nodes to visit (in order)
      * @param nodesNotVisited list of nodes not visited yet
      */
-    public static void BFSRecursive(Graph g, List<Integer> nodesVisited, List<Integer> nodesToVisit, List<Integer> nodesNotVisited) {
+    public static void breadthFirstSearchRecursive(Graph g, List<Integer> nodesVisited, List<Integer> nodesToVisit, List<Integer> nodesNotVisited) {
         
         // Termination condition: All nodes have been visited
         if (nodesVisited.size() == g.getNumNodes()) {
@@ -157,6 +157,6 @@ public class BreadthFirstSearch {
 
         System.out.println("NODES TO VISIT: " + nodesToVisit.toString());
 
-        BFSRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
+        breadthFirstSearchRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
     }
 }
