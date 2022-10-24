@@ -79,12 +79,12 @@ public class BreadthFirstSearch {
         List<Integer> nodesVisited = new ArrayList<Integer>(); // list of nodes visited so far
         List<Integer> nodesToVisit = new ArrayList<Integer>(); // list of nodes to visit (in order)
         List<Integer> nodesNotVisited = new ArrayList<>(g.getNodeList()); // list of nodes not visited yet. we shallow copy so we don't edit what is on the object
-        boolean allNodesVisited = false;
+        
         int currentNode;
         
         nodesToVisit.add(startNode);
         
-        while (!allNodesVisited) {
+        while (nodesVisited.size() < g.getNumNodes()) {
             if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
                 System.out.println("Found a disconnect. Moving to next unvisited node.");
                 currentNode = nodesNotVisited.get(0);
@@ -110,11 +110,6 @@ public class BreadthFirstSearch {
             }
 
             System.out.println("NODES TO VISIT: " + nodesToVisit.toString());
-
-            // Termination condition: All nodes have been visited
-            if (nodesVisited.size() == g.getNumNodes()) {
-                allNodesVisited = true;
-            }
         }
     }
 
