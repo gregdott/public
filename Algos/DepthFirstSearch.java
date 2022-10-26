@@ -2,6 +2,8 @@ package Algos;
 
 import java.util.*;
 import Utils.Graph.*;
+import Utils.Pr;
+
 
 /*
  * Author: Gregory Dott
@@ -40,18 +42,18 @@ public class DepthFirstSearch {
 
         //-----------------------------------------------------------------------
         // Iterative:
-        System.out.println("----------------------------------------------------");
-        System.out.println("Depth First Search (Iterative):");
+        Pr.x("----------------------------------------------------");
+        Pr.x("Depth First Search (Iterative):");
 
         depthFirstSearchIterative(g, startNode);
 
-        System.out.println("----------------------------------------------------");
+        Pr.x("----------------------------------------------------");
         //-----------------------------------------------------------------------
 
         //-----------------------------------------------------------------------
         // Recursive:
-        System.out.println("----------------------------------------------------");
-        System.out.println("Depth First Search (Recursive):");
+        Pr.x("----------------------------------------------------");
+        Pr.x("Depth First Search (Recursive):");
 
         List<Integer> nodesVisited, currentPath, nodesNotVisited;
         nodesVisited = new ArrayList<Integer>();
@@ -61,7 +63,7 @@ public class DepthFirstSearch {
         currentPath.add(startNode);
         depthFirstSearchRecursive(g, nodesVisited, currentPath, nodesNotVisited);
 
-        System.out.println("----------------------------------------------------");
+        Pr.x("----------------------------------------------------");
         //-----------------------------------------------------------------------
         
     }
@@ -92,7 +94,7 @@ public class DepthFirstSearch {
 
             if (currentPath.size() == 0) {
                 // No nodes in current path, but graph has not been exhausted, so we have reached a disconnect. Proceed to the first node in nodesNotVisited
-                System.out.println("Found a disconnect. Moving to next unvisited node.");
+                Pr.x("Found a disconnect. Moving to next unvisited node.");
                 currentNode = nodesNotVisited.get(0);
                 currentPath.add(currentNode);
             } else {
@@ -100,7 +102,7 @@ public class DepthFirstSearch {
             }
             
 
-            System.out.println("CURRENT NODE: " + currentNode);
+            Pr.x("CURRENT NODE: " + currentNode);
 
             List<Integer> neighbours = adjList.get(currentNode);
             boolean allNeighboursVisited = true;
@@ -126,7 +128,7 @@ public class DepthFirstSearch {
                 nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode)); // remove current node from nodes not visited (and not already removed)
             }
 
-            System.out.println(currentPath.toString());
+            Pr.x(currentPath.toString());
         }
     }
 
@@ -150,14 +152,14 @@ public class DepthFirstSearch {
 
         if (currentPath.size() == 0) {
             // No nodes in current path, but graph has not been exhausted, so we have reached a disconnect. Proceed to the first node in nodesNotVisited
-            System.out.println("Found a disconnect. Moving to next unvisited node.");
+            Pr.x("Found a disconnect. Moving to next unvisited node.");
             currentNode = nodesNotVisited.get(0);
             currentPath.add(currentNode);
         } else {
             currentNode = currentPath.get(currentPath.size() - 1); // Get last element on current path. Our current node...
         }
 
-        System.out.println("CURRENT NODE: " + currentNode);
+        Pr.x("CURRENT NODE: " + currentNode);
 
         List<Integer> neighbours = g.getAdjList().get(currentNode);
         boolean allNeighboursVisited = true;
@@ -184,7 +186,7 @@ public class DepthFirstSearch {
             nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode)); // remove current node from nodes not visited (and not already removed)
         }
 
-        System.out.println(currentPath.toString());
+        Pr.x(currentPath.toString());
 
         depthFirstSearchRecursive(g, nodesVisited, currentPath, nodesNotVisited);
     }

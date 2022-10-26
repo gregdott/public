@@ -2,6 +2,7 @@ package Algos;
 
 import java.util.*;
 import Utils.Graph.*;
+import Utils.Pr;
 
 /*
  * Author: Gregory Dott
@@ -42,18 +43,18 @@ public class BreadthFirstSearch {
         
         //-----------------------------------------------------------------------
         // Iterative:
-        System.out.println("----------------------------------------------------");
-        System.out.println("Breadth First Search (Iterative):");
+        Pr.x("----------------------------------------------------");
+        Pr.x("Breadth First Search (Iterative):");
 
         breadthFirstSearchIterative(g, 0);
 
-        System.out.println("----------------------------------------------------");
+        Pr.x("----------------------------------------------------");
         //-----------------------------------------------------------------------
 
         //-----------------------------------------------------------------------
         // Recursive:
-        System.out.println("----------------------------------------------------");
-        System.out.println("Breadth First Search (Recursive):");
+        Pr.x("----------------------------------------------------");
+        Pr.x("Breadth First Search (Recursive):");
 
         List<Integer> nodesToVisit = new ArrayList<Integer>();
         List<Integer> nodesVisited = new ArrayList<Integer>();
@@ -62,7 +63,7 @@ public class BreadthFirstSearch {
 
         breadthFirstSearchRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
 
-        System.out.println("----------------------------------------------------");
+        Pr.x("----------------------------------------------------");
         
         //-----------------------------------------------------------------------
     }
@@ -86,14 +87,14 @@ public class BreadthFirstSearch {
         
         while (nodesVisited.size() < g.getNumNodes()) {
             if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node
-                System.out.println("Found a disconnect. Moving to next unvisited node.");
+                Pr.x("Found a disconnect. Moving to next unvisited node.");
                 currentNode = nodesNotVisited.get(0);
             } else {
                 currentNode = nodesToVisit.get(0); // Get next node to visit
                 nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
             }
             
-            System.out.println(currentNode);
+            Pr.x(Integer.toString(currentNode));
 
             nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode));
             nodesVisited.add(currentNode);
@@ -109,7 +110,7 @@ public class BreadthFirstSearch {
                 }
             }
 
-            System.out.println("NODES TO VISIT: " + nodesToVisit.toString());
+            Pr.x("NODES TO VISIT: " + nodesToVisit.toString());
         }
     }
 
@@ -132,14 +133,14 @@ public class BreadthFirstSearch {
         int currentNode;
 
         if (nodesToVisit.size() == 0) { // we have not yet visited all nodes, but we can go no further from the current node           
-            System.out.println("Found a disconnect. Moving to next unvisited node.");
+            Pr.x("Found a disconnect. Moving to next unvisited node.");
             currentNode = nodesNotVisited.get(0);
         } else {
             currentNode = nodesToVisit.get(0); // Get next node to visit
             nodesToVisit.remove(0); // remove node we are visiting from list of nodes to visit
         }
 
-        System.out.println(currentNode);
+        Pr.x(Integer.toString(currentNode));
         
         nodesNotVisited.remove(nodesNotVisited.indexOf(currentNode));
         nodesVisited.add(currentNode);
@@ -155,7 +156,7 @@ public class BreadthFirstSearch {
             }
         }
 
-        System.out.println("NODES TO VISIT: " + nodesToVisit.toString());
+        Pr.x("NODES TO VISIT: " + nodesToVisit.toString());
 
         breadthFirstSearchRecursive(g, nodesVisited, nodesToVisit, nodesNotVisited);
     }
