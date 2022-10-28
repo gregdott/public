@@ -12,6 +12,7 @@ import Utils.Pr;
  * 
  * For Kruskal's Algorithm we need to create a list of edges that are sorted according to their weights.
  * 
+ * TODO This class should probably get extended to be able to deal with unweighted graphs too. Then I can delete Graph.java and do away with a bit of redundant code. 
  * 
  */
 
@@ -29,6 +30,7 @@ public class WeightedGraph {
 
     /**
      * WeightedGraph: constructor
+     * 
      * @param edges array of arrays containing 3 ints. The first two refer to nodes and the last int refers to the weight of the edge
      * @param numNodes number of nodes in the graph
      */

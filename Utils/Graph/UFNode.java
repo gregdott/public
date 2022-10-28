@@ -6,7 +6,7 @@ package Utils.Graph;
  * 
  * UFNode is a class representing a node for use in Union-Find applications (disjoint data set)
  * It contains a node index and a parent index
- * It could contain a size or a rank, but for the implementation it is being used for (Kruskal's Algorithm), 
+ * It could contain a size or a rank, but for the implementation it is currently being used for (Kruskal's Algorithm), 
  * we are not going to be worrying about that.
  * 
  */

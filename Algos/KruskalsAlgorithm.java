@@ -21,7 +21,7 @@ import Utils.Graph.*;
  * More simply (from https://www.techiedelight.com/kruskals-algorithm-for-finding-minimum-spanning-tree/)
  * A Minimum Spanning Tree is a spanning tree of a connected, undirected graph. It connects all the vertices with minimal total weighting for its edges.
  * 
- * For this implementation we are assuming that the graph is connected, so we are looking for a minimum spanning tree (only 1). Not a forest.
+ * For this implementation we are assuming that the graph is connected, so we are looking for a minimum spanning tree (MST) (only 1). Not a forest.
  * At a later stage it will be good to extend this for unconnected graphs as well. 
  * 
  * 
@@ -46,23 +46,28 @@ import Utils.Graph.*;
 
 public class KruskalsAlgorithm {
     
+    /**
+     * Kruskal's Algorithm has just been implemented in main() for now as what is here is quite short
+     * The bulk of the processing happens in the WeightedGraph and UnionFind classes
+     * @param args
+     */
     public static void main(String args[]) {
         int[][] weightedEdges = {{0, 1, 7}, {1, 2, 8}, {0, 3, 5}, {1, 3, 9}, {1, 4, 7}, {2, 4, 5}, {3, 4, 15}, {3, 5, 6}, {4, 5, 8}, {4, 6, 9}, {5, 6, 11}};
-        WeightedGraph wg = new WeightedGraph(weightedEdges, 7);
+        WeightedGraph wg = new WeightedGraph(weightedEdges, 7); // Initialise weighted graph AND create list of edges ordered according to their weight (asc)
 
-        List<UFNode> ufNodes = new ArrayList<UFNode>();
-        
+        List<UFNode> ufNodes = new ArrayList<UFNode>(); // List of nodes for use in UnionFind logic
+        // for each node in the graph we create a UFNode. These function as linked lists for tracking the progress of finding the MST
         for (int i = 0; i < wg.getNumNodes(); i++) {
-            UFNode newNode = new UFNode(i, i); // instantiate a ufnode and set it as its own root
+            UFNode newNode = new UFNode(i, i); // Instantiate a ufnode and set it as its own root. Each node is a disjoint set in the beginning
             ufNodes.add(newNode);
         }
 
-        List<WeightedEdge> orderedByWeight = wg.getOrderedByWeightList();
+        List<WeightedEdge> orderedByWeight = wg.getOrderedByWeightList(); // get the list of edges ordered by weight
         
         for (WeightedEdge edge: orderedByWeight) {
-            // do a find() for the nodes in this edge
+            // do a find() for the nodes in this edge - find gets the root of a node
             if (UnionFind.find(edge.getSource(), ufNodes) != UnionFind.find(edge.getDest(), ufNodes)) {
-                // we won't have a cycle if we add this edge to the spanning tree, so we merge the two linked lists associated with source and dest nodes
+                // the two nodes do not have the same origin, so we know we aren't creating a cycle and can safely add this edge to the MST
                 UnionFind.union(edge, ufNodes, wg);
             }
         }
