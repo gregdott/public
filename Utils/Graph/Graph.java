@@ -16,6 +16,11 @@ import java.util.*;
  * 
  * It also takes single nodes (nodes without neighbours) into account. That is why we need to provide the number of nodes in the graph
  * 
+ * 
+ * *** Having now created the WeightedGraph class, I wonder if this should be done away with.
+ * Essentially, we can just change the WeightedGraph constructor to check the length of arrays representing an edge given
+ * If length is only 2 (we only have node data) then we can store 0 for the edge weight. Need to think about this...
+ * 
  */
 
 public class Graph {
