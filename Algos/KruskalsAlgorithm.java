@@ -55,7 +55,7 @@ public class KruskalsAlgorithm {
         //int[][] weightedEdges = {{0, 1, 7}, {1, 2, 8}, {0, 3, 5}, {1, 3, 9}, {1, 4, 7}, {2, 4, 5}, {3, 4, 15}, {3, 5, 6}, {4, 5, 8}, {4, 6, 9}, {5, 6, 11}};
         int[][] weightedEdges = {{0, 1, 4}, {0, 7, 8}, {1, 2, 8}, {1, 7, 11}, {2, 3, 7}, {2, 8, 2}, {2, 5, 4}, {3, 4, 9}, {3, 5, 14}, {4, 5, 10}, {5, 6, 2}, {6, 7, 1}, {6, 8, 6}, {7, 8, 7}};
         
-        WeightedGraph wg = new WeightedGraph(weightedEdges, 9); // Initialise weighted graph AND create list of edges ordered according to their weight (asc)
+        WeightedGraph wg = new WeightedGraph(weightedEdges, 9, false); // Initialise weighted graph AND create list of edges ordered according to their weight (asc)
 
         List<UFNode> ufNodes = new ArrayList<UFNode>(); // List of nodes for use in UnionFind logic
         // for each node in the graph we create a UFNode. These function as linked lists for tracking the progress of finding the MST
