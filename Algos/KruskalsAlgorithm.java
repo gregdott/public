@@ -24,7 +24,7 @@ import Utils.Graph.*;
  * For this implementation we are assuming that the graph is connected, so we are looking for a minimum spanning tree (MST) (only 1). Not a forest.
  * At a later stage it will be good to extend this for unconnected graphs as well. 
  * 
- * 
+ * TODO: clean up the logic in main() and separate relevant parts into separate methods
  * 
  * Basic algorithm:
  * (requires additional implementation of Union–Find stuff (3 operations: MAKE-SET, FIND-SET, UNION))
