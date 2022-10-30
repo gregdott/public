@@ -20,13 +20,12 @@ import Utils.Pr;
 
 public class FloydWarshall {
     public static void main(String args[]) {
+        //int[][] weightedEdges = {{0, 2, -2}, {2, 3, 2}, {3, 1, -1}, {1, 2, -3}, {1, 0, 4}}; // this one has a negative cycle for testing
         int[][] weightedEdges = {{0, 2, -2}, {2, 3, 2}, {3, 1, -1}, {1, 2, 3}, {1, 0, 4}}; // first 2 elements are vertex indices, last element is edge weight
-        int numVertices = 4;
+        
         int[][] distanceMatrix = new int[4][4]; // create a distance matrix with as many rows and columns as there are vertices
-
-        //WeightedGraph wg = new WeightedGraph(weightedEdges, numVertices, true);
+        
         initDistanceMatrix(distanceMatrix, weightedEdges);
-
         calculateShortestPaths(distanceMatrix);
     }
 
@@ -52,13 +51,18 @@ public class FloydWarshall {
     }
 
     private static void calculateShortestPaths(int[][] distanceMatrix) {
-
+        
         for (int k = 0; k < distanceMatrix.length; k++) {
             for (int i = 0; i < distanceMatrix.length; i++) {
                 for (int j = 0; j < distanceMatrix.length; j++) {
                     if (distanceMatrix[i][k] != Integer.MAX_VALUE && distanceMatrix[k][j] != Integer.MAX_VALUE) { // This is our clunky way of simulating infinity. It's not pretty, but it does the trick.
                         if (distanceMatrix[i][j] > distanceMatrix[i][k] + distanceMatrix[k][j]) {
                             distanceMatrix[i][j] = distanceMatrix[i][k] + distanceMatrix[k][j];
+
+                            if (i == j && distanceMatrix[i][j] < 0) { // a negative cycle has been found. Halt all execution. No valid shortest path can be found.
+                                Pr.x("NEGATIVE CYCLE DETECTED!");
+                                return;
+                            }
                         }
                     }
                 }
