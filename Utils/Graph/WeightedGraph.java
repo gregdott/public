@@ -14,17 +14,10 @@ import Utils.Pr;
  * 
  * TODO This class should probably get extended to be able to deal with unweighted graphs too. Then I can delete Graph.java and do away with a bit of redundant code. 
  * 
- * *****************************************
- * *****************************************
- * BUSY HERE: To implement the Floyd-Warshall algorithm (for directed graphs), I am going to modify this class to be able to handle directed and undirected graphs
- * I just need to make sure that the Kruskal's Algo implementation is not affected (or at least gets updated appropriately)
- * *****************************************
- * *****************************************
  * 
  */
 
 public class WeightedGraph {
-    private boolean isDirected;
     private List<WeightedEdge> edgeList; // list containing the edges in the graph
 
     // list containing the edges of the minimum spanning tree. This gets progressively updated, 
@@ -42,8 +35,7 @@ public class WeightedGraph {
      * @param edges array of arrays containing 3 ints. The first two refer to nodes and the last int refers to the weight of the edge
      * @param numNodes number of nodes in the graph
      */
-    public WeightedGraph(int[][] edges, int numNodes, boolean isDirected) {
-        this.isDirected = isDirected;
+    public WeightedGraph(int[][] edges, int numNodes) {
         this.numNodes = numNodes;
         edgeList = new ArrayList<WeightedEdge>();
         minSpanningTree = new ArrayList<WeightedEdge>();
