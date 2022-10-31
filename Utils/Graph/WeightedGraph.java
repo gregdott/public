@@ -15,6 +15,8 @@ import Utils.Pr;
  * TODO This class should probably get extended to be able to deal with unweighted graphs too. Then I can delete Graph.java and do away with a bit of redundant code. 
  * 
  * 
+ * For Dijkstra's Algorithm we will be using this class now. Are there any modifications needed?
+ * 
  */
 
 public class WeightedGraph {
@@ -51,8 +53,7 @@ public class WeightedGraph {
             edgeList.add(newEdge);
         }
         
-        // Should probably put this in another function.
-        orderedByWeight = orderByWeight(new ArrayList<WeightedEdge>(edgeList)); // we copy the list because we destroy it when ordering.
+        
         
         // Initialise each list in the adjacency list
         for (int i = 0; i < numNodes; i++) {
@@ -82,6 +83,7 @@ public class WeightedGraph {
     }
     
     public List<WeightedEdge> getOrderedByWeightList() {
+        orderedByWeight = orderByWeight(new ArrayList<WeightedEdge>(edgeList)); // we copy the list because we destroy it when ordering.
         return orderedByWeight;
     }
 
