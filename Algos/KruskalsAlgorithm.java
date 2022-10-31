@@ -44,12 +44,6 @@ import Utils.Graph.*;
  */
 
 public class KruskalsAlgorithm {
-    
-    /**
-     * Kruskal's Algorithm has just been implemented in main() for now as what is here is quite short
-     * The bulk of the processing happens in the WeightedGraph and UnionFind classes
-     * @param args
-     */
     public static void main(String args[]) {
         //int[][] weightedEdges = {{0, 1, 7}, {1, 2, 8}, {0, 3, 5}, {1, 3, 9}, {1, 4, 7}, {2, 4, 5}, {3, 4, 15}, {3, 5, 6}, {4, 5, 8}, {4, 6, 9}, {5, 6, 11}};
         int[][] weightedEdges = {{0, 1, 4}, {0, 7, 8}, {1, 2, 8}, {1, 7, 11}, {2, 3, 7}, {2, 8, 2}, {2, 5, 4}, {3, 4, 9}, {3, 5, 14}, {4, 5, 10}, {5, 6, 2}, {6, 7, 1}, {6, 8, 6}, {7, 8, 7}};
