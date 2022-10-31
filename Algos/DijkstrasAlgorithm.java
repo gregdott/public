@@ -26,6 +26,11 @@ import Utils.Pr;
  *   vertex by following j = prev[i], then we go to prev[j] and so on until we reach the source vertex. Path reconstruction.
  * - unvisited is a list containing vertices that have not been visited yet
  * 
+ * It should be noted that it is assumed that there definitely is SOME path from arbitrary node a to arbitrary node b (the graph is connected)
+ * If a disconnected graph is provided there will be some errors.
+ * 
+ * TODO: extend functionality to account for disconnected graphs
+ * 
  */
 
 public class DijkstrasAlgorithm {
