@@ -100,6 +100,10 @@ public class WeightedGraph {
         minSpanningTree.add(edge);
     }
     
+    public List<WeightedEdge> getEdgeList() {
+        return edgeList;
+    }
+
     public List<WeightedEdge> getOrderedByWeightList() {
         orderedByWeight = orderByWeight(new ArrayList<WeightedEdge>(edgeList)); // we copy the list because we destroy it when ordering.
         return orderedByWeight;
@@ -116,6 +120,8 @@ public class WeightedGraph {
     public List<Integer> getNodeList() {
         return nodeList;
     }
+
+
 
     /**
      * orderByWeight - uses the basic Quicksort Algorithm (recursive)
