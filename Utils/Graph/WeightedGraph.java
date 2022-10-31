@@ -31,6 +31,8 @@ public class WeightedGraph {
     private List<WeightedEdge> orderedByWeight; // contains the same edges as in edgeList, but it is ordered according to the weight of the edge in ascending order
     private int numNodes; // number of nodes in the graph
 
+    private int[][] edgeWeights; // quick way for getting edge weights.
+
     /**
      * WeightedGraph: constructor
      * 
@@ -39,6 +41,7 @@ public class WeightedGraph {
      */
     public WeightedGraph(int[][] edges, int numNodes) {
         this.numNodes = numNodes;
+        edgeWeights = new int[numNodes][numNodes];
         edgeList = new ArrayList<WeightedEdge>();
         minSpanningTree = new ArrayList<WeightedEdge>();
         nodeList = new ArrayList<Integer>();
@@ -51,6 +54,10 @@ public class WeightedGraph {
             weight = edges[i][2];
             WeightedEdge newEdge = new WeightedEdge(source, dest, weight);
             edgeList.add(newEdge);
+
+            // Initialise our edge weights. This assumes an undirected graph, so if that ever changes, this must change.
+            edgeWeights[source][dest] = weight;
+            edgeWeights[dest][source] = weight;
         }
         
         
@@ -68,6 +75,12 @@ public class WeightedGraph {
         }
     }
 
+    // assumes undirected graph
+    public int getEdgeWeight(int source, int dest) {
+        return edgeWeights[source][dest];
+    }
+
+    // Is it right that we have a function like this here, where the calculation of this depends on a whole other thing executing. NO. Need to clean this up.
     public List<WeightedEdge> getMinSpanningTree() {
         return minSpanningTree;
     }
