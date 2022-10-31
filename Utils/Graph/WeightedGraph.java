@@ -15,7 +15,7 @@ import Utils.Pr;
  * TODO This class should probably get extended to be able to deal with unweighted graphs too. Then I can delete Graph.java and do away with a bit of redundant code. 
  * 
  * 
- * For Dijkstra's Algorithm we will be using this class now. Are there any modifications needed?
+ * For Dijkstra's Algorithm we will be using this class now. Are there any modifications needed? Yes. Need to deal with directed graphs
  * 
  */
 
@@ -25,7 +25,7 @@ public class WeightedGraph {
     // list containing the edges of the minimum spanning tree. This gets progressively updated, 
     // so there could be points in time when it is incomplete. Is this ok in terms of naming then?
     private List<WeightedEdge> minSpanningTree; 
-
+    private boolean isDirected;
     private List<Integer> nodeList; // Just a list of numbered nodes.
     private List<List<Integer>> adjList; // adjacency list
     private List<WeightedEdge> orderedByWeight; // contains the same edges as in edgeList, but it is ordered according to the weight of the edge in ascending order
@@ -39,8 +39,9 @@ public class WeightedGraph {
      * @param edges array of arrays containing 3 ints. The first two refer to nodes and the last int refers to the weight of the edge
      * @param numNodes number of nodes in the graph
      */
-    public WeightedGraph(int[][] edges, int numNodes) {
+    public WeightedGraph(int[][] edges, int numNodes, boolean isDirected) {
         this.numNodes = numNodes;
+        this.isDirected = isDirected;
         edgeWeights = new int[numNodes][numNodes];
         edgeList = new ArrayList<WeightedEdge>();
         minSpanningTree = new ArrayList<WeightedEdge>();
@@ -54,10 +55,12 @@ public class WeightedGraph {
             weight = edges[i][2];
             WeightedEdge newEdge = new WeightedEdge(source, dest, weight);
             edgeList.add(newEdge);
-
-            // Initialise our edge weights. This assumes an undirected graph, so if that ever changes, this must change.
+            
+            // Initialise our edge weights
             edgeWeights[source][dest] = weight;
-            edgeWeights[dest][source] = weight;
+            if (!this.isDirected) {
+                edgeWeights[dest][source] = weight;
+            }
         }
         
         
@@ -71,11 +74,13 @@ public class WeightedGraph {
         // Create adjacency list from edges 
         for (WeightedEdge edge: edgeList) {
             adjList.get(edge.getSource()).add(edge.getDest());
-            adjList.get(edge.getDest()).add(edge.getSource());
+            if (!this.isDirected) {
+                adjList.get(edge.getDest()).add(edge.getSource());
+            }
         }
     }
 
-    // assumes undirected graph
+    
     public int getEdgeWeight(int source, int dest) {
         return edgeWeights[source][dest];
     }
