@@ -30,12 +30,27 @@ public class KadanesAlgorithm {
     private static void maxSubArray(int[] nums) {
         int currentSum = 0;
         int maxSum = 0;
+        int bestStart, bestEnd, currentStart;
+        currentStart = bestStart = bestEnd = 0;
 
-        for (int num: nums) {
-            currentSum = Integer.max(0, currentSum + num);
-            maxSum = Integer.max(maxSum, currentSum);
+        for (int i = 0; i < nums.length; i++) {
+            int num = nums[i];
+
+            if (currentSum <= 0) {
+                currentStart = i;
+                currentSum = num;
+            } else {
+                currentSum += num;
+            }
+
+            if (currentSum > maxSum) {
+                maxSum = currentSum;
+                bestStart = currentStart;
+                bestEnd = i;
+            }
         }
 
         Pr.x("Max Sum: " + maxSum);
+        Pr.x("Best Start: " + bestStart + ", Best End: " + bestEnd);
     }
 }
