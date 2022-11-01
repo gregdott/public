@@ -29,7 +29,7 @@ public class FloodFill {
      * @param node int[2] representing the starting point of the fill (node[0] - x, node[1] - y)
      */
     private static void floodFillRecursive(char[][] matrix, int[] node, char initialColour, char newColour) {
-        if (matrix[node[0]][node[1]] != initialColour) {
+        if (matrix[node[0]][node[1]] != initialColour) { // don't want to replace colours that are not our initial colour
             return;
         } else {
             matrix[node[0]][node[1]] = newColour;
@@ -47,6 +47,22 @@ public class FloodFill {
         }
     }
 
+    private static void floodFillIterative(char[][] matrix, int[] startNode, char initialColour, char newColour) {
+        int length = matrix.length;
+        List<int[]> toFill = new ArrayList<int[]>();
+        toFill.add(startNode);
+
+        while(!toFill.isEmpty()) {
+            int[] node = toFill.get(0);
+            matrix[node[0]][node[1]] = newColour;
+            toFill.remove(node);
+            if (node[0] - 1 >= 0 && matrix[node[0] - 1][node[1]] == initialColour) toFill.add(new int[]{node[0] - 1, node[1]});
+            if (node[0] + 1 < length && matrix[node[0] + 1][node[1]] == initialColour) toFill.add(new int[]{node[0] + 1, node[1]});
+            if (node[1] - 1 >= 0 && matrix[node[0]][node[1] - 1] == initialColour) toFill.add(new int[]{node[0], node[1] - 1});
+            if (node[1] + 1 < length && matrix[node[0]][node[1] + 1] == initialColour) toFill.add(new int[]{node[0], node[1] + 1});
+        }
+    }
+
     public static void main(String args[]) {
         char[][] matrix = {
             "YYYGGGGGGG".toCharArray(),
@@ -61,7 +77,8 @@ public class FloodFill {
             "WBBXXXXXXX".toCharArray()
         };
 
-        floodFillRecursive(matrix, new int[]{3, 9}, matrix[3][9], 'C');
+        //floodFillRecursive(matrix, new int[]{3, 9}, matrix[3][9], 'C');
+        floodFillIterative(matrix, new int[]{3, 9}, matrix[3][9], 'C');
         printMatrix(matrix);
     }
 
