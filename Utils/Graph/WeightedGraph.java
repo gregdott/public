@@ -13,9 +13,11 @@ import Utils.Pr;
  * For Kruskal's Algorithm we need to create a list of edges that are sorted according to their weights.
  * 
  * TODO This class should probably get extended to be able to deal with unweighted graphs too. Then I can delete Graph.java and do away with a bit of redundant code. 
- * 
+ * Once we have done this, update TopologicalSort to not require edge weights of 0.
+ * TODO GENERALISE!
  * 
  * For Dijkstra's Algorithm we will be using this class now. Are there any modifications needed? Yes. Need to deal with directed graphs
+ * Also using for Kahn's Algorithm (for topological sort). This requires a directed graph as well.
  * 
  */
 
@@ -46,7 +48,7 @@ public class WeightedGraph {
         edgeList = new ArrayList<WeightedEdge>();
         minSpanningTree = new ArrayList<WeightedEdge>();
         nodeList = new ArrayList<Integer>();
-        adjList = new ArrayList<List<Integer>>();
+        //adjList = new ArrayList<List<Integer>>();
 
         for (int i = 0; i < edges.length; i++) {
             int source, dest, weight;
@@ -63,15 +65,21 @@ public class WeightedGraph {
             }
         }
         
-        
-        
-        // Initialise each list in the adjacency list
         for (int i = 0; i < numNodes; i++) {
-            adjList.add(new ArrayList<Integer>());
             nodeList.add(i);
         }
 
         // Create adjacency list from edges 
+        updateAdjList();
+    }
+
+    // create/update adjacency list
+    public void updateAdjList() {
+        adjList = new ArrayList<List<Integer>>();
+        // Initialise each list in the adjacency list
+        for (int i = 0; i < numNodes; i++) {
+            adjList.add(new ArrayList<Integer>());
+        }
         for (WeightedEdge edge: edgeList) {
             adjList.get(edge.getSource()).add(edge.getDest());
             if (!this.isDirected) {
