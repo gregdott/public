@@ -32,15 +32,7 @@ public class TopologicalSort {
         // In order to avoid having to rework the WeightedGraph class right now, just using it and setting edge weights all to 0
         int[][] edges =  {{0, 6, 0}, {1, 2, 0}, {1, 4, 0}, {1, 6, 0}, {3, 0, 0}, {3, 4, 0}, {5, 1, 0}, {7, 0, 0}, {7, 1, 0}};
         WeightedGraph wg = new WeightedGraph(edges, 8, true);
-
-        //List<WeightedEdge> edgeList = new ArrayList<WeightedEdge>(wg.getEdgeList());
         List<Integer> sortedVertices = kahnTopologicalSort(wg);
-
-        
-        // for (List<Integer> neighbours: adjList) {
-        //     Pr.x(neighbours.toString());
-        // }
-
         Pr.x(sortedVertices.toString());
     }
     
@@ -61,6 +53,12 @@ public class TopologicalSort {
         return sortedVertices;
     }
 
+    /**
+     * removeEdgesForVertex - removes the outgoing edges from vertex in the graph wg
+     * 
+     * @param vertex the vertex for which we want to remove all outgoing edges
+     * @param wg WeightedGraph object
+     */
     private static void removeEdgesForVertex(int vertex, WeightedGraph wg) {
         List<WeightedEdge> edgeList = wg.getEdgeList();
         List<WeightedEdge> toRemove = new ArrayList<WeightedEdge>();
@@ -69,6 +67,7 @@ public class TopologicalSort {
                 toRemove.add(edge);
             }
         }
+        // Seeing as we are using the enhanced for-loop we can't just remove the edge while looping as this will cause a concurrent modification exception
         edgeList.removeAll(toRemove);
         wg.updateAdjList();
     }
