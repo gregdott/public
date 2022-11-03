@@ -21,6 +21,8 @@ import Utils.Pr;
  * ===============================================================================================================
  * 
  * We want to output each index in s where w occurs 
+ * 
+ * TODO: hi res description of how and why the partial match table works. I believe I can even improve on Jake Boxer's explanation from above
  */
 
 public class KMPAlgorithm {
@@ -72,6 +74,18 @@ public class KMPAlgorithm {
         }
     }
 
+    /**
+     * generatePartialMatchTable - generates a partial match table to help us determine how far we can move along 
+     * the string we are searching in after a potential match fails. It's actually a really simple concept that seems 
+     * to be explained online in strangely complicated ways. It's a simple concept, but tricky to explain.
+     *      
+     * To explain very broadly, the partial match table stores data about substrings of the search string that are repeated
+     * This helps us to determine how far along the searchable string we can jump when a match fails after n characters.
+     * This is a very low res description. Hi res description to come.
+     * 
+     * @param w the string that we are searching for
+     * @return partial match table (array) that reflects how far we can move along the searchable string based on how many characters matched previously
+     */
     private static int[] generatePartialMatchTable(String w) {
         char[] chars = w.toCharArray();
         int[] pmTable = new int[w.length()];
@@ -95,6 +109,14 @@ public class KMPAlgorithm {
         return pmTable;
     }
 
+    /**
+     * getPropers - get either the proper prefixes or suffixes for a given string
+     * Not sure about this naming
+     * @param w
+     * @param length
+     * @param isPrefix
+     * @return
+     */
     private static String[] getPropers(String w, int length, boolean isPrefix) {
         String[] propers = new String[length];
 
