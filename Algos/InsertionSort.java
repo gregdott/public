@@ -23,9 +23,11 @@ public class InsertionSort {
     public static void main(String args[]) {
         int[] nums = {3, 8, 5, 4, 1, 9, -2};
         Pr.x("Unsorted: " + Arrays.toString(nums));
-        //int[] sorted = insertionSortIterative(nums);
-        int[] sorted = insertionSortRecursive(nums, 1);
-        Pr.x(Arrays.toString(sorted));
+        int[] sorted1 = insertionSortIterative(nums);
+        int[] sorted2 = insertionSortRecursive(nums, 1);
+
+        Pr.x("Sorted iterative: " + Arrays.toString(sorted1));
+        Pr.x("Sorted recursive: " + Arrays.toString(sorted2));
     }
 
     /**
@@ -69,7 +71,7 @@ public class InsertionSort {
                 break; // element is in place. no need to go further
             }
         }
-        
+
         index++;
         return insertionSortRecursive(nums, index);
     }
