@@ -22,6 +22,8 @@ import Utils.Pr;
  * 
  * Thanks Tom...
  * 
+ * To be honest, Tom's video was more useful in understanding Huffman Encoding than anything else. This implementation
+ * was based pretty much entirely on what I learnt from his video.
  * --------------------------------------------------------------------------------------------------------------------------
  * The current implementation creates a tree as a linked list. Because it is a binary tree however, we could store it in an array.
  * Perhaps I will alter the implementation to work that way at some point...
