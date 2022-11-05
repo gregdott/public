@@ -1,4 +1,4 @@
-package Algos;
+package Algorithms;
 
 import java.util.*;
 import Utils.Pr;

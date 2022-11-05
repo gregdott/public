@@ -1,4 +1,4 @@
-package Algos;
+package Algorithms;
 
 /**
  * Author: Gregory Dott

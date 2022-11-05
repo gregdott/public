@@ -1,36 +1,43 @@
-package Algos;
+package Algorithms;
 
 import java.util.*;
-import Utils.Pr;
-import Utils.Graph.WeightedEdge;
 import Utils.Graph.WeightedGraph;
+import Utils.Pr;
 
 /*
  * Author: Gregory Dott
- * 31-10-2022
+ * 30-10-2022
  * 
  * From Wikipedia:
  * ===========================================================================================================================
- * The Bellman–Ford algorithm is an algorithm that computes shortest paths from a single source vertex to all of the other 
- * vertices in a weighted digraph. It is slower than Dijkstra's algorithm for the same problem, but more versatile, as it 
- * is capable of handling graphs in which some of the edge weights are negative numbers. The algorithm was first proposed 
- * by Alfonso Shimbel (1955), but is instead named after Richard Bellman and Lester Ford Jr., who published it in 1958 and 
- * 1956, respectively. Edward F. Moore also published a variation of the algorithm in 1959, and for this reason it is also 
- * sometimes called the Bellman–Ford–Moore algorithm.
+ * Dijkstra's algorithm is an algorithm for finding the shortest paths between nodes in a graph, which may represent, 
+ * for example, road networks. It was conceived by computer scientist Edsger W. Dijkstra in 1956 and published three years later.
+ * 
+ * The algorithm exists in many variants. Dijkstra's original algorithm found the shortest path between two given nodes,
+ * but a more common variant fixes a single node as the "source" node and finds shortest paths from the source to all other 
+ * nodes in the graph, producing a shortest-path tree.
  * ===========================================================================================================================
  * 
- * ^^^ The Wikipedia description's second sentence was clearly written by a non-English speaker. What they are saying there is
- * that it's capability of handling graphs with negative edge weights is the reason that it is slower than Dijkstra's Algo.
+ * This implementation will find the shortest-path tree for a given graph.
  * 
- * Initialisation and basic data structures are pretty much identical to what is used in the implementation of Dijkstra's Algorithm.
- * This algorithm is in fact so similar to Dijkstra's that much of the code is shared between the two implementations.
+ * We need the following data structures:
+ * - dist[i] which stores distances from source to vertex i. 
+ * - prev[i] which stores the vertex we visited before visiting i. This is essentially our tree as we can track our way back to the source
+ *   vertex by following j = prev[i], then we go to prev[j] and so on until we reach the source vertex. Path reconstruction.
+ * - unvisited is a list containing vertices that have not been visited yet
+ * 
+ * It should be noted that it is assumed that there definitely is SOME path from arbitrary node a to arbitrary node b (the graph is connected)
+ * If a disconnected graph is provided there will be some errors.
+ * 
+ * TODO: extend functionality to account for disconnected graphs
  * 
  */
 
-public class BellmanFord {
+public class DijkstrasAlgorithm {
+
     public static void main(String args[]) {
         int[] dist, prev;
-        //int[][] weightedEdges = {{0, 1, 10}, {0, 4, 3}, {1, 2, 2}, {1, 4, -4}, {2, 3, 9}, {3, 2, 7}, {4, 1, 1}, {4, 2, 8}, {4, 3, 2}}; // for negative cycle testing
+        List<Integer> unvisited;
         int[][] weightedEdges = {{0, 1, 10}, {0, 4, 3}, {1, 2, 2}, {1, 4, 4}, {2, 3, 9}, {3, 2, 7}, {4, 1, 1}, {4, 2, 8}, {4, 3, 2}};
 
         int numVertices = 5;
@@ -38,48 +45,48 @@ public class BellmanFord {
         WeightedGraph wg = new WeightedGraph(weightedEdges, numVertices, true);
         dist = new int[numVertices];
         prev = new int[numVertices];
-
-        boolean noNegativeCycles = calculateShortestPaths(dist, prev, wg, startVertex);
-
-        if (noNegativeCycles) {
-            printShortestPaths(startVertex, dist, prev);
-        } else {
-            Pr.x("Graph contains a negative cycle!");
-        }
+        unvisited = new ArrayList<Integer>();
+        
+        calculateShortestPaths(dist, prev, unvisited, wg, startVertex);
+        printShortestPaths(startVertex, dist, prev);
     }
 
-     /**
+    /**
      * calculateShortestPath - calculates the shortest path from the startVertex to all other vertices in the graph
-     * using the Bellman-Ford Algorithm
+     * using Dijkstra's Algorithm
      * 
      * @param dist distances from startVertex (while calculating this stores current min distance from start to i)
      * @param prev tree structure storing paths to startVertex
+     * @param unvisited list of unvisited vertices
      * @param wg weighted graph object
      * @param startVertex the vertex we begin the search from
-     * @throws Exception
      */
-    private static boolean calculateShortestPaths(int[] dist, int[] prev, WeightedGraph wg, int startVertex) {
-        
-        initDataStructures(dist, prev, startVertex); // initialise the data structures we are using
-        List<WeightedEdge> edgeList = wg.getEdgeList();
-        for (int i = 0; i < dist.length - 1; i++) {
-            for (WeightedEdge edge: edgeList) {
-                if (dist[edge.getSource()] + edge.getWeight() < dist[edge.getDest()]) {
-                    dist[edge.getDest()] = dist[edge.getSource()] + edge.getWeight();
-                    prev[edge.getDest()] = edge.getSource();
+    private static void calculateShortestPaths(int[] dist, int[] prev, List<Integer> unvisited, WeightedGraph wg, int startVertex) {
+        initDataStructures(dist, prev, unvisited, startVertex); // initialise the data structures we are using
+        List<List<Integer>> adjList = wg.getAdjList();
+        while(!unvisited.isEmpty()) { // while we have vertices in our unvisited list
+            int minDist = Integer.MAX_VALUE; // initialise to largest possible value
+            int currentVertex = -1;
+            
+            // Go through list of currently unvisited vertices and find the one that is closest to startVertex
+            for (Integer uv: unvisited) { // uv = unvisited vertex
+                if (dist[uv] < minDist) {
+                    minDist = dist[uv];
+                    currentVertex = uv;
+                }
+            }
+            unvisited.remove(Integer.valueOf(currentVertex)); // remove currentVertex from our list of unvisited vertices
+
+            // visit all the neighbours of currentVertex
+            List<Integer> neighbours = adjList.get(currentVertex);            
+            for (Integer neighbour: neighbours) {
+                int newDist = dist[currentVertex] + wg.getEdgeWeight(currentVertex, neighbour);
+                if (newDist < dist[neighbour]) { // if the distance to the neighbour on the current path is less than what we have before, update the distance and the path
+                    dist[neighbour] = newDist;
+                    prev[neighbour] = currentVertex;
                 }
             }
         }
-
-        // Check for negative cycles in graph. By virtue of having executed the previous for-loop [dist.length -1] times,
-        // if any of our paths end up shorter, we must have a negative cycle in the graph.
-        for (WeightedEdge edge: edgeList) {
-            if (dist[edge.getSource()] + edge.getWeight() < dist[edge.getDest()]) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -90,10 +97,11 @@ public class BellmanFord {
      * @param unvisited list of unvisited vertices
      * @param startVertex the vertex we begin the search from
      */
-    private static void initDataStructures(int[] dist, int[] prev, int startVertex) {
+    private static void initDataStructures(int[] dist, int[] prev, List<Integer> unvisited, int startVertex) {
         for (int i = 0; i < dist.length; i++) {
             dist[i] = Integer.MAX_VALUE; // initialise to largest possible value
             prev[i] = -1;
+            unvisited.add(i);
         }
         dist[startVertex] = 0;
     }
@@ -143,4 +151,8 @@ public class BellmanFord {
 
         return path;
     }
+
+    
 }
+
+

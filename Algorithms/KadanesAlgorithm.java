@@ -1,4 +1,4 @@
-package Algos;
+package Algorithms;
 
 import Utils.Pr;
 
