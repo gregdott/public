@@ -57,4 +57,4 @@ This readme needs formatting and editing. These are my rough thoughts for now.
  Joh 1:1 In the beginning was the Word, and the Word was with God, and the Word was God.
  
  Much higher vote count and much stronger correlation in terms of content.
- =============================================================================================================================
+ 
