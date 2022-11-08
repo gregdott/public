@@ -47,17 +47,14 @@ public class BibleGraph {
      * For starting experiments, I'm just going to go breadth first: explore all edges of startNode, continue with edges of neighbours
      * and so on until we have reached our vertex limit.
      */
-    public BibleGraph(String book, String chapterNum, String verseNum, int limit) {
+    public BibleGraph(String book, int chapterNum, int verseNum, int limit) {
         Document verseDoc = getVerse(book, chapterNum, verseNum);
-        //Document adj = (Document)verseDoc.get("adj");
 
         String verseJSON = verseDoc.toJson();
         JSONObject vjo = new JSONObject(verseJSON);
         JSONArray narr = vjo.getJSONArray("adj"); // neighbours
 
-       
-
-        BibleNode firstNode = new BibleNode(book, chapterNum, verseNum, verseDoc.get("text").toString(), 0);
+        BibleNode firstNode = new BibleNode(book, chapterNum, verseNum, verseDoc.get("text").toString(), narr);
 
         String verseId = book + "." + chapterNum + "." + verseNum;
         bibleNodes.put(verseId, firstNode);
@@ -67,31 +64,41 @@ public class BibleGraph {
 
         int nodeCount = 1;
 
-        BibleNode currentNode = nodesToExplore.get(0);
+        BibleNode currentNode;
         
         while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
-            for (int i = 0; i < narr.length(); i++) {
-                if (nodeCount >= limit) break;
-                //String post_id = arr.getJSONObject(i).getString("post_id");
-                //Pr.x(narr.getJSONObject(i).getString("dest").toString());
-                String destString = narr.getJSONObject(i).getString("dest");
-
-                if (!destString.contains("-")) { // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
-                    //Pr.x(destString);
-                    if (!bibleNodes.containsKey(destString)) { // don't want to create nodes that already exist
-                        BibleNode newNode = getNodeFromString(destString);
-                        bibleNodes.put(destString, newNode);
-                        nodesToExplore.add(newNode);
-                        nodeCount++;
-                    }
+            currentNode = nodesToExplore.get(0);
+            List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
+            
+            while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
+                FutureNeighbour cfn = fns.get(0);
+                
+                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
+                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
+                    BibleNode newNode = getNodeFromString(cfn.nodeId);
+                    bibleNodes.put(cfn.nodeId, newNode);
+                    nodesToExplore.add(newNode);
+                    currentNode.addNeighbour(newNode);
                     
+                    nodeCount++;
                 }
+                fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
             }
+            nodesToExplore.remove(0); // remove this node after having explored it
         }
 
-        Pr.x(bibleNodes.toString());
-        
-        //Pr.x(verseDoc.get("adj").toString());
+        printGraph();
+    }
+
+    private static void printGraph() {
+        Enumeration<String> iterator = bibleNodes.keys();
+        while(iterator.hasMoreElements()) {
+            String key = iterator.nextElement();
+            BibleNode bn = bibleNodes.get(key);
+            Pr.x("===========================================");
+            Pr.x("KEY: " + key);
+            bn.print();
+        }
     }
 
     public static void main(String args[]) throws IOException {
@@ -102,7 +109,7 @@ public class BibleGraph {
         mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
         //-----------------------------------------------------------------------------
 
-        BibleGraph bg = new BibleGraph("Ge", "1", "1", 10);
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 100);
        
     }
 
@@ -110,24 +117,27 @@ public class BibleGraph {
     private static BibleNode getNodeFromString(String vString) {
         String[] destBits = vString.split("\\.");
         String book = destBits[0];
-        String chapter = destBits[1];
-        String verse = destBits[2];
+        int chapter = Integer.parseInt(destBits[1]);
+        int verse = Integer.parseInt(destBits[2]);
 
         Document verseDoc = getVerse(book, chapter, verse);
-        BibleNode newNode = new BibleNode(book, chapter, verse, verseDoc.get("text").toString(), 0);
+        String verseJSON = verseDoc.toJson();
+        JSONObject vjo = new JSONObject(verseJSON);
+        JSONArray narr = vjo.getJSONArray("adj"); // neighbours
+        BibleNode newNode = new BibleNode(book, chapter, verse, verseDoc.get("text").toString(), narr);
         return newNode;
     }
 
     // will use somewhere at some point. just storing this here for now
-    public static Document getVerse(String book, String chapterNum, String verseNum) {
+    public static Document getVerse(String book, int chapterNum, int verseNum) {
         try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
 
             MongoDatabase db = mongoClient.getDatabase("bibleloops");
             MongoCollection<Document> bCol = db.getCollection(book);
 
             Map<String, String> selector = new HashMap<String, String>();
-            selector.put("chapter", chapterNum);
-            selector.put("verse", verseNum);
+            selector.put("chapter", Integer.toString(chapterNum));
+            selector.put("verse", Integer.toString(verseNum));
 
             Document doc = bCol.find(new Document(selector)).first();
             

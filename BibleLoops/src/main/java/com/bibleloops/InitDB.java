@@ -22,7 +22,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 //-----------------------------------------------------------------------------
-// for removing annoying log messages
+// for removing annoying mongodb log messages
 import java.util.logging.Logger;
 import java.util.logging.Level;
 //-----------------------------------------------------------------------------
@@ -231,22 +231,7 @@ public class InitDB {
 
     
 
-    // will use somewhere at some point. just storing this here for now
-    public static Document getVerse(String book, String chapterNum, String verseNum) {
-        try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
-
-            MongoDatabase db = mongoClient.getDatabase("bibleloops");
-            MongoCollection<Document> bCol = db.getCollection(book);
-
-            Map<String, String> selector = new HashMap<String, String>();
-            selector.put("chapter", chapterNum);
-            selector.put("verse", verseNum);
-
-            Document doc = bCol.find(new Document(selector)).first();
-            
-            return doc;
-        }
-    }
+    
 
     // reverse mapping of map1 (should we ever need it...) probably won't...
    /* private static void initMap2() {
