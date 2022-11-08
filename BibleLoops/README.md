@@ -19,7 +19,9 @@ Also, is it possible to find isomorphic subgraphs, and is there some shared idea
 To be completely honest, this may be a futile task, bordering on the limits of sanity. However, if nothing meaningful is achieved through this, I will have at least improved my programming skills along with my knowledge of the Biblical stories and graph theory.
 
 The data used in this project is from the following two files:
+
 kjv.txt: acquired from https://github.com/pstephens/kingjames.bible/tree/master/kjv-src/www.staggs.pair.com-kjbp
+
 cross_references.txt: acquired from https://www.openbible.info/labs/cross-references/
 
 ## The Path Forward
