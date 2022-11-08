@@ -37,7 +37,7 @@ public final class App {
 
 
         //InitDB.readFilesAndInitDB(); // for initialising the database - once done, we don't need to do this again unless data gets corrupted or changed
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10);
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs");
         
 
         

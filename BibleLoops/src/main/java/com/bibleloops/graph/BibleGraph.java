@@ -36,7 +36,8 @@ public class BibleGraph {
         mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
         //-----------------------------------------------------------------------------
 
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 1);
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs");
+        Pr.x(bibleNodes.size());
        
     }
 
@@ -47,7 +48,7 @@ public class BibleGraph {
      * @param limit the number of vertices allowed in this graph. depending on how the graph is constructed, this limit could have various implications.
      * 
      */
-    public BibleGraph(String book, int chapterNum, int verseNum, int limit) {
+    public BibleGraph(String book, int chapterNum, int verseNum, int limit, String mode) {
         Document verseDoc = getVerse(book, chapterNum, verseNum);
 
         String verseJSON = verseDoc.toJson();
@@ -62,31 +63,20 @@ public class BibleGraph {
         List<BibleNode> nodesToExplore = new ArrayList<BibleNode>(); // keeps track of which nodes we have not explored fully yet
         nodesToExplore.add(firstNode);
 
-        int nodeCount = 1;
-
-        BibleNode currentNode;
-        
-        while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
-            currentNode = nodesToExplore.get(0);
-            List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
-            Pr.x("NODE COUNT: " + nodeCount);
-            while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
-                FutureNeighbour cfn = fns.get(0);
-                
-                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
-                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
-                    BibleNode newNode = getNodeFromString(cfn.nodeId);
-                    bibleNodes.put(cfn.nodeId, newNode);
-                    nodesToExplore.add(newNode);
-                    currentNode.addNeighbour(newNode);
-                    nodeCount++;
-                }
-                fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
-            }
-            nodesToExplore.remove(0); // remove this node after having explored it
+        if (mode == "cbfs") {            
+            Pr.x("Constructing graph using Conscious Breadth First Method restricted by width (5)", "=");
+            cBFSCreate(nodesToExplore, limit, 5);
+        } else if (mode == "ubfs") {
+            //uBFSCreate(limit);
+        } else if (mode == "cdfs") {
+            //cDFSCreate(limit);
+        } else if (mode == "udfs") {
+            //uDFSCreate(limit);
         }
+        
+       
 
-        //printGraph();
+        printGraph();
     }
 
     /*
@@ -104,13 +94,108 @@ public class BibleGraph {
      * Then create separate graph building function here to build them 
      */
 
+    /**
+     * uBFSCreate - initialise the graph using an unconscious breadth-first-search approach.
+     * This means that starting from the source vertex, we expand all edges and create nodes for neighbours,
+     * then we do the same for each neighbour sequentially until we reach our limit. We pay no attention to
+     * edge weights in this approach.
+     * 
+     * Not sure if this is even necessary.
+     * 
+     * @param limit the max number of nodes allowed
+     */
+    private static void uBFSCreate(int limit) {
+
+    }
+
+    /**
+     * cBFSCreate - initialise the graph using a conscious breadth-first-search approach.
+     * This means that starting from the source vertex, we expand all edges but in order of edge weight (descending) 
+     * and create nodes for neighbours, then we do the same for each neighbour sequentially until we reach our limit. 
+     * Here we do pay attention to edge weights and use the edges with higher edge weights first.
+     * 
+     * Multiple ways this can be done...
+     * 1. only edges over a certain weight
+     * 2. restricted width (playing with this for now)
+     * 
+     * @param limit the max number of nodes allowed
+     */
+    private static void cBFSCreate(List<BibleNode> nodesToExplore, int limit, int width) {
+        int nodeCount = 1;
+        BibleNode currentNode;
+
+        while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
+            currentNode = nodesToExplore.get(0);
+            List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
+            
+            // Pr.x(currentNode.getVerseId());
+            // for (int i = 0; i < fns.size(); i++) {
+            //     FutureNeighbour fn = fns.get(i);
+            //     fn.print();
+            // }
+            
+
+            int edgeWidth = 0;
+            while (nodeCount < limit && !fns.isEmpty() && edgeWidth < width) { // loop through future neighbours for current node
+                FutureNeighbour cfn = fns.get(0);
+                
+                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
+                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
+                    BibleNode newNode = getNodeFromString(cfn.nodeId);
+                    bibleNodes.put(cfn.nodeId, newNode);
+                    nodesToExplore.add(newNode);
+                    currentNode.addNeighbour(newNode);
+                    nodeCount++;
+                    edgeWidth++;
+                }
+                fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
+            }
+            nodesToExplore.remove(0); // remove this node after having explored it
+        }
+    }
+
+    /**
+     * uDFSCreate - initialise the graph using an unconscious depth-first-search approach
+     * @param limit the max number of nodes allowed
+     */
+    private static void uDFSCreate(int limit) {
+
+    }
+
+    /* while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
+            currentNode = nodesToExplore.get(0);
+            List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
+            Pr.x("NODE COUNT: " + nodeCount);
+            while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
+                FutureNeighbour cfn = fns.get(0);
+                
+                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
+                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
+                    BibleNode newNode = getNodeFromString(cfn.nodeId);
+                    bibleNodes.put(cfn.nodeId, newNode);
+                    nodesToExplore.add(newNode);
+                    currentNode.addNeighbour(newNode);
+                    nodeCount++;
+                }
+                fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
+            }
+            nodesToExplore.remove(0); // remove this node after having explored it
+        }*/
+    /**
+     * cDFSCreate - initialise the graph using a conscious depth-first-search approach
+     * @param limit the max number of nodes allowed
+     */
+    private static void cDFSCreate(int limit) {
+
+    }
+
     private static void printGraph() {
         Enumeration<String> iterator = bibleNodes.keys();
         while(iterator.hasMoreElements()) {
             String key = iterator.nextElement();
             BibleNode bn = bibleNodes.get(key);
-            Pr.x("===========================================");
-            Pr.x("KEY: " + key);
+            // Pr.x("===========================================");
+            // Pr.x("KEY: " + key);
             bn.print();
         }
     }
