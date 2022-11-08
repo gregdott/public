@@ -1,19 +1,13 @@
 package com.bibleloops.graph;
 
 import com.bibleloops.Pr;
-
 import java.util.*;
 import java.io.IOException;
-
-
-
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
 import org.bson.Document;
-
 import org.json.*;
 
 //-----------------------------------------------------------------------------
@@ -26,11 +20,25 @@ import java.util.logging.Level;
  * Author: Gregory Dott
  * 05-11-2022
  * 
+ * Class for creating graphs from Biblical data in various ways and interacting with them
  * 
+ * Job.30.2 - no edges leaving it!
  */
 
 public class BibleGraph {
     static Hashtable<String, BibleNode> bibleNodes = new Hashtable<String, BibleNode>();
+
+    public static void main(String args[]) throws IOException {
+
+        //-----------------------------------------------------------------------------
+        // removes annoying mongo log messages
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
+        //-----------------------------------------------------------------------------
+
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 1);
+       
+    }
 
     /**
      * BibleGraph - create a BibleGraph object
@@ -38,14 +46,6 @@ public class BibleGraph {
      * @param startVerse the verse to begin graph construction from. we need some start node otherwise where do we begin???
      * @param limit the number of vertices allowed in this graph. depending on how the graph is constructed, this limit could have various implications.
      * 
-     * eg. do we just create as many nodes as possible (up to the limit) by exploring all edges of our startVerse and outwards?
-     * or do we only consider those edges with a weight greater than some number?
-     * or do we go depth first and just explore one edge from each vertex?
-     * etc. etc. etc.
-     * Many ways these things can be done...
-     * 
-     * For starting experiments, I'm just going to go breadth first: explore all edges of startNode, continue with edges of neighbours
-     * and so on until we have reached our vertex limit.
      */
     public BibleGraph(String book, int chapterNum, int verseNum, int limit) {
         Document verseDoc = getVerse(book, chapterNum, verseNum);
@@ -69,7 +69,7 @@ public class BibleGraph {
         while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
             currentNode = nodesToExplore.get(0);
             List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
-            
+            Pr.x("NODE COUNT: " + nodeCount);
             while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
                 FutureNeighbour cfn = fns.get(0);
                 
@@ -79,7 +79,6 @@ public class BibleGraph {
                     bibleNodes.put(cfn.nodeId, newNode);
                     nodesToExplore.add(newNode);
                     currentNode.addNeighbour(newNode);
-                    
                     nodeCount++;
                 }
                 fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
@@ -87,8 +86,23 @@ public class BibleGraph {
             nodesToExplore.remove(0); // remove this node after having explored it
         }
 
-        printGraph();
+        //printGraph();
     }
+
+    /*
+     * In terms of graph creation, I am going to explore several possible ways of creating graphs:
+     * 
+     * Unconcsious Breadth-First (just expand all edges etc. from source node breadth-first until we reach our limit)
+     * Concsious Breadth-First (instead of expanding every possible edge, we only expand edges with certain weights - most sensibly greater than some value)
+     * Conscious Depth-First (Here we need to have some means of choosing which edge to follow, edge with greatest weight etc.)
+     * Unconscious Depth-First (Randomise the edge we follow)
+     * Depth-First Multiphase? (Depth-First construction up until some limit, then proceed again from source or perhaps a child... Needs thought)
+     * Randomised (randomly choose depth or breadth first approach for each node or something. some way of randomising how we move through)
+     * Alternating dfs & bfs?
+     * 
+     * So, the first thing that is needed is to sort the edges belonging to a node in descending order of weight.
+     * Then create separate graph building function here to build them 
+     */
 
     private static void printGraph() {
         Enumeration<String> iterator = bibleNodes.keys();
@@ -101,18 +115,6 @@ public class BibleGraph {
         }
     }
 
-    public static void main(String args[]) throws IOException {
-
-        //-----------------------------------------------------------------------------
-        // removes annoying mongo log messages
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
-        //-----------------------------------------------------------------------------
-
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 100);
-       
-    }
-
     // given a string (usually from an edge representing a destination node), get the BibleNode for it. so parse the string and find the verse.
     private static BibleNode getNodeFromString(String vString) {
         String[] destBits = vString.split("\\.");
@@ -121,9 +123,16 @@ public class BibleGraph {
         int verse = Integer.parseInt(destBits[2]);
 
         Document verseDoc = getVerse(book, chapter, verse);
+        
         String verseJSON = verseDoc.toJson();
         JSONObject vjo = new JSONObject(verseJSON);
-        JSONArray narr = vjo.getJSONArray("adj"); // neighbours
+        JSONArray narr = new JSONArray();
+        //vjo.getJSONArray("adj"); // neighbours
+
+        if (vjo.has("adj")) {
+            narr = vjo.getJSONArray("adj"); // neighbours
+        }
+
         BibleNode newNode = new BibleNode(book, chapter, verse, verseDoc.get("text").toString(), narr);
         return newNode;
     }

@@ -1,6 +1,7 @@
 package com.bibleloops.graph;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 import org.json.JSONArray;
 
@@ -33,19 +34,71 @@ public class BibleNode {
         addFutureNeighbours(narr);
     }
 
+    public String getVerseId() {
+        return book + "." + chapterNumber + "." + verseNumber;
+    }
+
     public void addNeighbour(BibleNode newNeighbour) {
         neighbours.add(newNeighbour);
     }
 
-    // add future neighbours to node. all those neighbours for which we have not (potentially at least) instantiated nodes
+    /**
+     * addFutureNeighbours -  We load the neighbours and then sort them in descending order of edge weight
+     * These are neighbours for which we have not (potentially at least) instantiated nodes. We could have instantiated
+     * some of these nodes previously as a result of them being adjacent to some other already-existing node, but we 
+     * have not attempted that yet from the perspective of the current node.
+     * 
+     * @param narr jsonarray of adj list from db for the current node.
+     */
     private void addFutureNeighbours(JSONArray narr) {
-        // we may at some point (VERY LIKELY) want to order this by weight desc. Then we can add edges in order of high weight first
         for (int i = 0; i < narr.length(); i++) {
             String destString = narr.getJSONObject(i).getString("dest");
-            //Pr.x("FUTURE NEIGHBOUR: " + destString);
             int weight = narr.getJSONObject(i).getInt("weight");
             FutureNeighbour fn = new FutureNeighbour(destString, weight);
             futureNeighbours.add(fn);
+        }
+
+        futureNeighbours = sortFutureNeighbours(futureNeighbours); // sort them!
+    }
+
+    // just a debug function to check that everything is good.
+    private void printFutureNeighbours() {
+        for (int i = 0; i < futureNeighbours.size(); i++) {
+            FutureNeighbour fn = futureNeighbours.get(i);
+            fn.print();
+        }
+    }
+
+    /**
+     * Quicksort for our FutureNeighbour objects. sorts in descending order so we can always 
+     * choose the one with the greatest edge weight from the front of the list
+     * 
+     * @param fns list of future neighbours, most likely unsorted in terms of weight
+     * @return list of future neighbours sorted in terms of weight
+     */
+    private static List<FutureNeighbour> sortFutureNeighbours(List<FutureNeighbour> fns) {
+        if (fns.size() <= 1) {
+            return fns;
+        } else {
+            FutureNeighbour pivot = fns.get(fns.size() - 1); // get last element of array
+            
+            List<FutureNeighbour> beforePivot = new ArrayList<FutureNeighbour>();
+            List<FutureNeighbour> afterPivot = new ArrayList<FutureNeighbour>();
+
+            // Loop through unsorted elements and place them in either beforePivot or afterPivot based on their value relative to pivot
+            for (int i = 0; i < fns.size() - 1; i++) {
+                if (fns.get(i).weight <= pivot.weight) {
+                    afterPivot.add(fns.get(i));
+                } else {
+                    beforePivot.add(fns.get(i));
+                }
+            }
+            
+            List<FutureNeighbour> sortedList = sortFutureNeighbours(beforePivot); // recurse on elements before pivot
+            sortedList.add(pivot); // add pivot back
+            sortedList.addAll(sortFutureNeighbours(afterPivot)); // recurse on elements after pivot
+            
+            return sortedList;
         }
     }
 
@@ -82,6 +135,11 @@ class FutureNeighbour {
     public FutureNeighbour(String nodeId, int weight) {
         this.nodeId = nodeId;
         this.weight = weight;
+    }
+
+    public void print() {
+        Pr.x("NODE ID: " + nodeId);
+        Pr.x("WEIGHT: " + weight);
     }
 }
 
