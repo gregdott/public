@@ -31,7 +31,7 @@ So far, the following has been implemented:
 
 Next to implement:
 - Constructing basic graphs from the db data
-- Visual interface for exploring graphs
+- Visual interface for exploring graphs (will be a separate custom built lib for graph visualisation - I have some other uses for this in mind, that's why it will be a separate lib)
 
 
 
