@@ -33,11 +33,12 @@ So far, the following has been implemented:
 
 Busy with:
 - Constructing basic graphs from the db data
+- Different ways of constructing graphs (depth-first, breadth-first, magnetism and whatever else I can think of)
+- Visual interface for exploring graphs (will be a separate custom built lib for graph visualisation - I have some other uses for this in mind, that's why it will be a separate lib)
 
 Next to implement:
-- Visual interface for exploring graphs (will be a separate custom built lib for graph visualisation - I have some other uses for this in mind, that's why it will be a separate lib)
-- Different ways of constructing graphs
 - Different ways of exploring graphs
+- Calculating Magnetism. This will be the node weight I reckon (I'm sure there is some graph theory term for it. Basically a value that is affected by how many edges come into a node, and how many edges come into the nodes that are along those edges and outwards in layers. So we can talk about a first-order, second-order etc. magnetism value. When I find out if there is a correct term for this in graph theory it will replace 'magnetism')
 
 
 
