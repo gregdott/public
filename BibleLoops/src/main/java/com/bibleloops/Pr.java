@@ -13,4 +13,16 @@ public class Pr {
     public static void x(String x) {
         System.out.println(x);
     }
+
+    public static void x(int x) {
+        System.out.println(x);
+    }
+
+    public static void x(String x, String extra) {
+        if (extra == "=") {
+            Pr.x("=========================================================================================");
+            Pr.x(x);
+            Pr.x("=========================================================================================");
+        }
+    }
 }
