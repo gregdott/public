@@ -120,7 +120,7 @@ public class BibleNode {
 
     public void print() {
         Pr.x("**********************************************************");
-        Pr.x(book + "." + chapterNumber + "." + verseNumber);
+        Pr.x(book + "." + chapterNumber + "." + verseNumber + ": " + text);
         Pr.x("Neighbours:");
         for (int i = 0; i < neighbours.size(); i++) {
             BibleNode bn = neighbours.get(i);

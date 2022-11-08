@@ -36,7 +36,7 @@ public class BibleGraph {
         mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
         //-----------------------------------------------------------------------------
 
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs");
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cdfs");
         Pr.x(bibleNodes.size());
        
     }
@@ -69,7 +69,8 @@ public class BibleGraph {
         } else if (mode == "ubfs") {
             //uBFSCreate(limit);
         } else if (mode == "cdfs") {
-            //cDFSCreate(limit);
+            Pr.x("Constructing graph using Conscious Depth First Method", "=");
+            cDFSCreate(nodesToExplore, limit);
         } else if (mode == "udfs") {
             //uDFSCreate(limit);
         }
@@ -140,6 +141,7 @@ public class BibleGraph {
                 FutureNeighbour cfn = fns.get(0);
                 
                 // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
+                // or maybe just link to first verse for now. OR ensure that link goes from first verse to subsequent verses in sequence. That is logical...
                 if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
                     BibleNode newNode = getNodeFromString(cfn.nodeId);
                     bibleNodes.put(cfn.nodeId, newNode);
@@ -185,8 +187,31 @@ public class BibleGraph {
      * cDFSCreate - initialise the graph using a conscious depth-first-search approach
      * @param limit the max number of nodes allowed
      */
-    private static void cDFSCreate(int limit) {
+    private static void cDFSCreate(List<BibleNode> nodesToExplore, int limit) {
+        int nodeCount = 1;
+        BibleNode currentNode;
 
+        while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
+            currentNode = nodesToExplore.get(0);
+            List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
+            
+            while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
+                FutureNeighbour cfn = fns.get(0);
+                
+                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
+                // or maybe just link to first verse for now. OR ensure that link goes from first verse to subsequent verses in sequence. That is logical...
+                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
+                    BibleNode newNode = getNodeFromString(cfn.nodeId);
+                    bibleNodes.put(cfn.nodeId, newNode);
+                    nodesToExplore.add(newNode);
+                    currentNode.addNeighbour(newNode);
+                    nodeCount++;
+                    break; // just want to explore one neighbour, then move on to the next node
+                }
+                fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
+            }
+            nodesToExplore.remove(0); // remove this node after having explored it
+        }
     }
 
     private static void printGraph() {
