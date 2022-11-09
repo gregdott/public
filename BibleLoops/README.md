@@ -37,7 +37,7 @@ So far, the following has been implemented:
 
 Busy with:
 - Different ways of constructing graphs (depth-first, breadth-first, magnetism and whatever else I can think of)
-- Visual interface for exploring graphs (will be a separate custom built lib for graph visualisation - I have some other uses for this in mind, that's why it will be a separate lib)
+- Visual interface for exploring graphs (will be a separate custom built lib for graph visualisation - I have some other uses for this in mind, that's why it will be a separate lib - eventually 😂)
 
 Next to implement:
 - Different ways of exploring graphs
