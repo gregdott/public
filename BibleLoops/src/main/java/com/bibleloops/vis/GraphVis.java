@@ -81,7 +81,7 @@ public class GraphVis extends JPanel {
     MovementAdapter ma = new MovementAdapter();
 
     public static void main(String args[]) {
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 59, "cbfs"); // init Bible Graph
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 30, "cbfs"); // init Bible Graph
 
         JFrame frame = new JFrame("TESTING!");
         GraphVis m = new GraphVis(bg);
@@ -192,7 +192,7 @@ public class GraphVis extends JPanel {
             circle.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             circle.setColor(nodeColours.get(i));
             circle.fill(shape);
-            circle.setColor(Color.RED);
+            circle.setColor(Color.BLACK);
             circle.drawString(bn.getVerseId(), shape.x + 30, shape.y + 50);
         }
 

@@ -67,7 +67,7 @@ public class BibleGraph {
 
         if (mode == "cbfs") {            
             Pr.x("Constructing graph using Conscious Breadth First Method restricted by width (5)", "=");
-            cBFSCreate(nodesToExplore, limit, 5);
+            cBFSCreate(nodesToExplore, limit, 10);
         } else if (mode == "ubfs") {
             //uBFSCreate(limit);
         } else if (mode == "cdfs") {
