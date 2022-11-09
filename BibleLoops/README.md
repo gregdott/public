@@ -30,9 +30,9 @@ cross_references.txt: acquired from https://www.openbible.info/labs/cross-refere
 
 So far, the following has been implemented:
 - Data import to mongodb (this is to speed up graph creation so that we aren't reading through very long files every time we want to map a connection)
+- Constructing basic graphs from the db data
 
 Busy with:
-- Constructing basic graphs from the db data
 - Different ways of constructing graphs (depth-first, breadth-first, magnetism and whatever else I can think of)
 - Visual interface for exploring graphs (will be a separate custom built lib for graph visualisation - I have some other uses for this in mind, that's why it will be a separate lib)
 
