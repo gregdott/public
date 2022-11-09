@@ -2,7 +2,7 @@
 
 Sample graph created with Bible Loops:
 
-<img src="https://raw.githubusercontent.com/gregdott/public/main/BibleLoops/BibleGraphSample.png" height="500">
+<img src="https://raw.githubusercontent.com/gregdott/public/main/BibleLoops/BibleGraphSample.png" height="300">
 
 
 ❗NOTE❗
@@ -12,7 +12,7 @@ The Bible has 31 102 verses in it. I found a file on openbible.info that contain
 
 The thing that inspired this idea was the visual that Chris Harrison created using 63 779 cross references in the Bible. You can find out more about this on his website: https://www.chrisharrison.net/index.php/Visualizations/BibleViz. The image is given below:
 
-<img src="https://chrisharrison.net/projects/bibleviz/BibleVizArc7WiderOTNTsmall.png" height="500">
+<img src="https://chrisharrison.net/projects/bibleviz/BibleVizArc7WiderOTNTsmall.png" height="400">
 
 When I saw that I immediately thought of graphs (this type: https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)). I wanted to see if there was anything interesting to be found by modelling this data as a graph and then exploring it in different ways. I have a number of half-formed ideas that I will be experimenting with as I go along with this project. Given the limits of computing power, constructing the entire graph would be unnecessarily time consuming. Instead, my investigations will focus on creating and exploring sub-graphs of this data set.
 
