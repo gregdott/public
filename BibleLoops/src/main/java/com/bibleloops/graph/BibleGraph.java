@@ -26,7 +26,8 @@ import java.util.logging.Level;
  */
 
 public class BibleGraph {
-    static Hashtable<String, BibleNode> bibleNodes = new Hashtable<String, BibleNode>();
+    Hashtable<String, BibleNode> bibleNodes = new Hashtable<String, BibleNode>();
+    String root;
 
     public static void main(String args[]) throws IOException {
 
@@ -36,8 +37,8 @@ public class BibleGraph {
         mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
         //-----------------------------------------------------------------------------
 
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cdfs");
-        Pr.x(bibleNodes.size());
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 100, "cdfs");
+        //Pr.x(bibleNodes.size());
        
     }
 
@@ -59,6 +60,7 @@ public class BibleGraph {
 
         String verseId = book + "." + chapterNum + "." + verseNum;
         bibleNodes.put(verseId, firstNode);
+        root = verseId;
 
         List<BibleNode> nodesToExplore = new ArrayList<BibleNode>(); // keeps track of which nodes we have not explored fully yet
         nodesToExplore.add(firstNode);
@@ -77,7 +79,8 @@ public class BibleGraph {
         
        
 
-        printGraph();
+        //printGraph();
+        traverseFromRootDFS();
     }
 
     /*
@@ -121,7 +124,7 @@ public class BibleGraph {
      * 
      * @param limit the max number of nodes allowed
      */
-    private static void cBFSCreate(List<BibleNode> nodesToExplore, int limit, int width) {
+    private void cBFSCreate(List<BibleNode> nodesToExplore, int limit, int width) {
         int nodeCount = 1;
         BibleNode currentNode;
 
@@ -185,19 +188,32 @@ public class BibleGraph {
         }*/
     /**
      * cDFSCreate - initialise the graph using a conscious depth-first-search approach
+     * 
+     * **************************************************************************
+     * with a limit of 100 from Ge.1.1 we only get 20 nodes.
+     * 
+     * It's because we get a loop. 
+     * 
+     * 1Co.8.7 -> Ro.14.14 (which has already been visited...)
+     * 
+     * Need a way to deal with this sort of case.
+     
+     * **************************************************************************
+
      * @param limit the max number of nodes allowed
      */
-    private static void cDFSCreate(List<BibleNode> nodesToExplore, int limit) {
+    private void cDFSCreate(List<BibleNode> nodesToExplore, int limit) {
         int nodeCount = 1;
         BibleNode currentNode;
-
+        Pr.x("LIMT: " + limit);
         while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
             currentNode = nodesToExplore.get(0);
             List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
             
             while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
                 FutureNeighbour cfn = fns.get(0);
-                
+                Pr.x("FN nodeid: " + cfn.nodeId);
+                Pr.x("used? " + bibleNodes.containsKey(cfn.nodeId));
                 // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
                 // or maybe just link to first verse for now. OR ensure that link goes from first verse to subsequent verses in sequence. That is logical...
                 if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
@@ -206,15 +222,27 @@ public class BibleGraph {
                     nodesToExplore.add(newNode);
                     currentNode.addNeighbour(newNode);
                     nodeCount++;
+                    Pr.x("verse id: " + cfn.nodeId);
+                    Pr.x("NODE COUNT: " + nodeCount);
                     break; // just want to explore one neighbour, then move on to the next node
                 }
                 fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
+                Pr.x("FNS EMPTY?: " + fns.isEmpty());
             }
             nodesToExplore.remove(0); // remove this node after having explored it
         }
     }
 
-    private static void printGraph() {
+    private void traverseFromRootDFS() {
+        BibleNode currentNode = bibleNodes.get(root);
+
+        while (currentNode.getNeighbours().size() > 0) {
+            currentNode.print();
+            currentNode = currentNode.getNeighbours().get(0);
+        }
+    }
+
+    private void printGraph() {
         Enumeration<String> iterator = bibleNodes.keys();
         while(iterator.hasMoreElements()) {
             String key = iterator.nextElement();
@@ -226,7 +254,7 @@ public class BibleGraph {
     }
 
     // given a string (usually from an edge representing a destination node), get the BibleNode for it. so parse the string and find the verse.
-    private static BibleNode getNodeFromString(String vString) {
+    private BibleNode getNodeFromString(String vString) {
         String[] destBits = vString.split("\\.");
         String book = destBits[0];
         int chapter = Integer.parseInt(destBits[1]);
@@ -248,7 +276,7 @@ public class BibleGraph {
     }
 
     // will use somewhere at some point. just storing this here for now
-    public static Document getVerse(String book, int chapterNum, int verseNum) {
+    public Document getVerse(String book, int chapterNum, int verseNum) {
         try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
 
             MongoDatabase db = mongoClient.getDatabase("bibleloops");
