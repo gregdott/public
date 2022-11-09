@@ -76,12 +76,18 @@ public class BibleGraph {
         } else if (mode == "udfs") {
             //uDFSCreate(limit);
         }
-        
-       
-
         //printGraph();
         traverseFromRootDFS();
     }
+
+    public int getSize() {
+        return bibleNodes.size();
+    }
+
+    public BibleNode getRoot() {
+        return bibleNodes.get(root);
+    }
+
 
     /*
      * In terms of graph creation, I am going to explore several possible ways of creating graphs:

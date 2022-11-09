@@ -3,11 +3,9 @@ package com.bibleloops;
 import java.io.IOException;
 
 
-import javax.swing.*;
-
 import com.bibleloops.graph.BibleGraph;
-
-import java.awt.*;  
+import com.bibleloops.vis.*;
+import javax.swing.JFrame;
 
 //-----------------------------------------------------------------------------
 // for removing annoying mongodb log messages
@@ -29,17 +27,25 @@ public final class App {
     }
 
     public static void main(String[] args) throws IOException{
+        
+        //*****************************************************************************************************************************************************
+        //InitDB.readFilesAndInitDB(); // for initialising the database - once done, we don't need to do this again unless data gets corrupted or changed
+        //*****************************************************************************************************************************************************
         //-----------------------------------------------------------------------------
-        // removes annoying mongo log messages
+        // removes annoying mongo log messages (and makes annoying code that has little purpose other than that appear. dubious)
         Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
         mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
         //-----------------------------------------------------------------------------
 
 
-        //InitDB.readFilesAndInitDB(); // for initialising the database - once done, we don't need to do this again unless data gets corrupted or changed
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs");
+        //BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs");
         
-
+        // GraphVis m=new GraphVis(29);  
+        // JFrame f=new JFrame();  
+        // f.add(m);  
+        // f.setSize(1600,900);
+        // //f.setLayout(null);  
+        // f.setVisible(true);
         
 
     }
@@ -47,35 +53,9 @@ public final class App {
     
 }
 
-/* for when I start on the interface
 
-DisplayGraphics m=new DisplayGraphics();  
-        JFrame f=new JFrame();  
-        f.add(m);  
-        f.setSize(800,600);
-        //f.setLayout(null);  
-        f.setVisible(true);
 
-class DisplayGraphics extends Canvas{  
-      
-    public void paint(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.drawString("Hello",40,40);
-        setBackground(Color.WHITE);
-        g2.fillRect(130, 30,100, 80);
-        
-        g2.drawOval(30,130,50, 60);
-        g2.drawOval(300, 300, 90, 90);
-        g2.fillOval(300, 300, 90, 90);
-        
-        g2.fillOval(130,130,50, 60);
-        g2.drawArc(30, 200, 40,50,90,60);
-        setForeground(Color.BLUE);
-        //g.fillArc(30, 130, 40,50,180,40);  
-          
-    }  
+
 
   
-}  
- */
+ 
