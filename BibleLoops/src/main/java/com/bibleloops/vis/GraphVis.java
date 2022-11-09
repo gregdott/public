@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.RenderingHints;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.util.*;
 
 
@@ -39,8 +40,13 @@ import java.awt.event.MouseMotionAdapter;
  * 
  */
 
+/*
+ * Just a simple class to contain node data along with the part used for displaying
+ * the node and its edges
+ */
 class DisplayNode {
     Ellipse2D.Float shape;
+    //List<Line2D.Float> edges;
     BibleNode bn;
 
     public DisplayNode(Ellipse2D.Float shape, BibleNode bn) {
@@ -49,16 +55,33 @@ class DisplayNode {
     }
 }
 
+class DisplayEdge {
+    // Need to add references to DisplayNode OR need to add references to this on DisplayNode... One of the two. Or both... Hmmmm. Probably only one
+    int sx, sy, dx, dy;
+    DisplayNode source;
+    DisplayNode dest;
+
+    public DisplayEdge(int sx, int sy, int dx, int dy, DisplayNode source, DisplayNode dest) {
+        this.sx = sx;
+        this.sy = sy;
+        this.dx = dx;
+        this.dy = dy;
+        this.source = source;
+        this.dest = dest;
+    }
+}
+
 public class GraphVis extends JPanel {
     List<Color> nodeColours;
-    // Here we want an object that contains the shape data along with the node data...
-    //List<Ellipse2D.Float> nodes = new ArrayList<Ellipse2D.Float>();
     List<DisplayNode> displayNodes = new ArrayList<DisplayNode>();
+    //List<Line2D.Float> edges = new ArrayList<Line2D.Float>();
+    List<DisplayEdge> edges = new ArrayList<DisplayEdge>();
+    Hashtable<String, DisplayNode> nodeMap = new Hashtable<String, DisplayNode>();
 
     MovementAdapter ma = new MovementAdapter();
 
     public static void main(String args[]) {
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs"); // init Bible Graph
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 59, "cbfs"); // init Bible Graph
 
         JFrame frame = new JFrame("TESTING!");
         GraphVis m = new GraphVis(bg);
@@ -78,6 +101,27 @@ public class GraphVis extends JPanel {
 
         BibleNode root = bg.getRoot();
         traverseFromRootBFS(root); // traverse our graph and draw the shapes
+
+        // PUT EDGE MAKING IN SEPARATE FUNCTION
+        // then loop through our DisplayNode objects, get the edges and draw them.
+        for(DisplayNode dn: displayNodes) {
+            Ellipse2D.Float sourceShape = dn.shape;
+            int sourceX = Math.round(sourceShape.x + (sourceShape.width/2));
+            int sourceY = Math.round(sourceShape.y + (sourceShape.height/2));
+            BibleNode bn = dn.bn;
+            List<BibleNode> neighbours = bn.getNeighbours();
+            for (BibleNode neigh: neighbours) {
+                // need to find the DisplayNode object for this bible node... Hmmmmm. Hashtable!
+                DisplayNode ndn = nodeMap.get(neigh.getVerseId()); // get the DisplayNode object for the neighbour so we know where to send the line to.
+                Ellipse2D.Float destShape = ndn.shape;
+                int destX = Math.round(destShape.x + (destShape.width/2));
+                int destY = Math.round(destShape.y + (destShape.height/2));
+
+                //Line2D.Float newEdge = new Line2D.Float(sourceX, sourceY, destX, destY);
+                DisplayEdge newEdge = new DisplayEdge(sourceX, sourceY, destX, destY, dn, ndn);
+                edges.add(newEdge);
+            }
+        }
     }
 
     void traverseFromRootBFS(BibleNode root) {
@@ -92,10 +136,12 @@ public class GraphVis extends JPanel {
 
             DisplayNode dn = new DisplayNode(shape, cNode);
             displayNodes.add(dn);
+            nodeMap.put(cNode.getVerseId(), dn); // associate DisplayNode with verseId so that when we create edges we can find the correct graphics object node location
             count++;
 
             List<BibleNode> neighbours = cNode.getNeighbours();
             for (int i = 0; i < neighbours.size(); i++) {
+                //Line2D.Float edge = new Line2D.Float() // can't do this here because we don't have destination yet... wait we can...
                 BibleNode cNeigh = neighbours.get(i);
                 nodesToVisit.add(cNeigh);
             }
@@ -127,6 +173,24 @@ public class GraphVis extends JPanel {
             circle.fill(shape);
             circle.setColor(Color.RED);
             circle.drawString(bn.getVerseId(), shape.x + 30, shape.y + 50);
+        }
+
+        for (int i = 0; i < edges.size(); i++) {
+            DisplayEdge ce = edges.get(i);
+            
+            // need to update coords of line in case nodes have moved:
+            DisplayNode source = ce.source;
+            DisplayNode dest = ce.dest;
+            ce.sx = Math.round(source.shape.x + source.shape.width/2);
+            ce.sy = Math.round(source.shape.y + source.shape.height/2);
+            ce.dx = Math.round(dest.shape.x + dest.shape.width/2);
+            ce.dy = Math.round(dest.shape.y + dest.shape.height/2);
+            //Pr.x(ce.toString());
+            Graphics2D line = (Graphics2D) g;
+            line.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            line.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            line.setColor(Color.BLACK);
+            line.drawLine(ce.sx, ce.sy, ce.dx, ce.dy);
         }
         
     }
