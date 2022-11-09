@@ -1,5 +1,6 @@
 # Bible Loops
 
+Sample graph created with Bible Loops:
 ![sample graph created with Bible Loops](https://raw.githubusercontent.com/gregdott/public/main/BibleLoops/BibleGraphSample.png)
 
 ❗NOTE❗
