@@ -1,7 +1,9 @@
 # Bible Loops
 
 Sample graph created with Bible Loops:
-![sample graph created with Bible Loops](https://raw.githubusercontent.com/gregdott/public/main/BibleLoops/BibleGraphSample.png)
+
+<img src="https://raw.githubusercontent.com/gregdott/public/main/BibleLoops/BibleGraphSample.png" height="200">
+
 
 ❗NOTE❗
 This is very much in progress at the moment. Anyone happening upon this may find it in a partially working state.
