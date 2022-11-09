@@ -163,18 +163,8 @@ public class GraphVis extends JPanel {
     public void paint(Graphics g) {  
         
         super.paint(g);
-        for (int i = 0; i < displayNodes.size(); i++) {
-            Ellipse2D.Float shape = displayNodes.get(i).shape;
-            BibleNode bn = displayNodes.get(i).bn;
-            Graphics2D circle = (Graphics2D) g;
-            circle.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            circle.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            circle.setColor(nodeColours.get(i));
-            circle.fill(shape);
-            circle.setColor(Color.RED);
-            circle.drawString(bn.getVerseId(), shape.x + 30, shape.y + 50);
-        }
 
+        // Paint edges first so they go behind
         for (int i = 0; i < edges.size(); i++) {
             DisplayEdge ce = edges.get(i);
             
@@ -192,6 +182,21 @@ public class GraphVis extends JPanel {
             line.setColor(Color.BLACK);
             line.drawLine(ce.sx, ce.sy, ce.dx, ce.dy);
         }
+
+        // Then paint the nodes
+        for (int i = 0; i < displayNodes.size(); i++) {
+            Ellipse2D.Float shape = displayNodes.get(i).shape;
+            BibleNode bn = displayNodes.get(i).bn;
+            Graphics2D circle = (Graphics2D) g;
+            circle.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            circle.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            circle.setColor(nodeColours.get(i));
+            circle.fill(shape);
+            circle.setColor(Color.RED);
+            circle.drawString(bn.getVerseId(), shape.x + 30, shape.y + 50);
+        }
+
+        
         
     }
 
