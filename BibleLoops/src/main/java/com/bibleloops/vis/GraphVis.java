@@ -9,7 +9,8 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.RenderingHints;
 import java.awt.Color;
-import java.awt.geom.Ellipse2D;
+import java.awt.Rectangle;
+import java.awt.BasicStroke;
 import java.util.*;
 
 import java.awt.event.MouseAdapter;  
@@ -21,7 +22,9 @@ import java.awt.event.MouseEvent;
  * 
  * This will initially be for visualising Bible graphs. I want to make it more useful than that and adapt it for
  * visualing all sorts of graph data. In the current case it has been constructed for visualising BibleNode
- * data. I want to create an intermediate type of node that we can map other nodes onto. That is a TODO. 
+ * data. I want to create a more generalised type of node that we can construct from various different
+ * datasets. Then we can use these nodes across different applications. That is a TODO. 2 things will become
+ * external: nodes & graph visualisation stuff. Those two could actually be packed together even.
  * 
  * So... for now, we are just going to use the graph directly. We can construct everything using a BFS approach.
  * Whatever approach we use (bfs or dfs) really just affects the order in which nodes are created. We will always
@@ -33,11 +36,14 @@ import java.awt.event.MouseEvent;
  * Simple class to contain node data along with the part used for displaying
  * the node and its edges
  */
+
+
 class DisplayNode {
-    Ellipse2D.Float shape;
+    //Ellipse2D.Float shape;
+    Rectangle shape;
     BibleNode bn;
 
-    public DisplayNode(Ellipse2D.Float shape, BibleNode bn) {
+    public DisplayNode(Rectangle shape, BibleNode bn) {
         this.shape = shape;
         this.bn = bn;
     }
@@ -67,6 +73,9 @@ public class GraphVis extends JPanel {
     MovementAdapter ma = new MovementAdapter();
 
     public static void main(String args[]) {
+
+        //Pr.x(BookMap.getBook("Re"));
+
         BibleGraph bg = new BibleGraph("Ge", 1, 1, 40, "cbfs"); // init Bible Graph
 
         JFrame frame = new JFrame("TESTING!");
@@ -110,26 +119,31 @@ public class GraphVis extends JPanel {
             int dx = Math.round(dest.shape.x + dest.shape.width/2);
             int dy = Math.round(dest.shape.y + dest.shape.height/2);
             
-            Graphics2D line = (Graphics2D) g;
-            line.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            line.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            line.setColor(Color.BLACK);
-            line.drawLine(sx, sy, dx, dy);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setStroke(new BasicStroke(2));
+            g2.setColor(Color.BLACK);
+            g2.drawLine(sx, sy, dx, dy);
         }
 
         // Then paint the nodes
         for (int i = 0; i < displayNodes.size(); i++) {
-            Ellipse2D.Float shape = displayNodes.get(i).shape;
+            //Ellipse2D.Float shape = displayNodes.get(i).shape;
+            Rectangle shape = displayNodes.get(i).shape;
             BibleNode bn = displayNodes.get(i).bn;
-            Graphics2D circle = (Graphics2D) g;
-            circle.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            circle.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            circle.setColor(nodeColours.get(i));            
-            circle.fill(shape);
-            circle.setColor(Color.GRAY);
-            circle.draw(shape);
-            circle.setColor(Color.BLACK);
-            circle.drawString(bn.getVerseId(), shape.x + 5, shape.y + (nodeSize/2));
+            Graphics2D g2 = (Graphics2D) g;
+            
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setColor(nodeColours.get(i));            
+            g2.fillRoundRect(shape.x, shape.y, shape.width, shape.height, 10, 10);
+
+            g2.setStroke(new BasicStroke(2));
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawRoundRect(shape.x, shape.y, shape.width, shape.height, 10, 10);
+            g2.setColor(Color.BLACK);
+            g2.drawString(bn.getVerseId(), shape.x + 5, shape.y + 15);
         }
     }
     
@@ -147,8 +161,9 @@ public class GraphVis extends JPanel {
         while(!nodesToVisit.isEmpty()) {
             BibleNode cNode = nodesToVisit.get(0);
             int[] coords = getNextCoodrinates(1600, 900, count, nodeSize); 
-            Ellipse2D.Float shape = new Ellipse2D.Float(coords[0], coords[1], nodeSize, nodeSize);
-
+            //Ellipse2D.Float shape = new Ellipse2D.Float(coords[0], coords[1], nodeSize, nodeSize);
+            Rectangle shape = new Rectangle(coords[0], coords[1], nodeSize, nodeSize);
+            
             DisplayNode dn = new DisplayNode(shape, cNode);
             displayNodes.add(dn);
             nodeMap.put(cNode.getVerseId(), dn); // associate DisplayNode with verseId so that when we create edges we can find the correct graphics object node location
@@ -189,8 +204,8 @@ public class GraphVis extends JPanel {
         int[] coords = new int[2];
         int numPerLine = frameWidth/(width + 5);
         int line = i/numPerLine;
-        coords[0] = (i%numPerLine)*(width + 5);
-        coords[1] = line*(width + 5);
+        coords[0] = (i%numPerLine)*(width + 5) + 5;
+        coords[1] = line*(width + 5) + 5;
         return coords;
     }
 
@@ -242,7 +257,8 @@ public class GraphVis extends JPanel {
             int dy = e.getY() - y;
             
             for (int i = 0; i < displayNodes.size(); i++) {
-                Ellipse2D.Float shape = displayNodes.get(i).shape;
+                //Ellipse2D.Float shape = displayNodes.get(i).shape;
+                Rectangle shape = displayNodes.get(i).shape;
                 
                 if (shape.getBounds2D().contains(x, y) && (dragging == i || dragging == -1)) {
                     dragging = i;
