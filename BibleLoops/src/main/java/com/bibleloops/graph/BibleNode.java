@@ -8,19 +8,37 @@ import com.bibleloops.Pr;
 /*
  * Author: Gregory Dott
  * 05-11-2022
+ * 
+ * Represents a verse in the Bible as a node in a graph. Each node is uniquely identified by its verse id,
+ * which consists of book name, chapter number and verse number. eg. Ge.1.1
+ * It also contains the actual text of the verse.
+ * 
+ * It has 2 lists that keep track of edges leaving the node. The first list 'neigbhours' is for edges leaving
+ * the node and going to a node that has been instantiated. The second list 'futureNeighbours' keeps track of
+ * edges leaving the node and going to nodes that have not been instantiated.
+ * 
  */
 
 public class BibleNode {
-    private String book; // the book the verse is contained in. "Ge", "Ex" etc.
-    private int chapterNumber; // verse chapter number
-    private int verseNumber; // verse number
-    private String text; // the text of the verse
-    //private int weight; // not sure how weights of nodes will be determined, but I believe something like this will be required
+    private String book;        // the book the verse is contained in. "Ge", "Ex" etc.
+    private int chapterNumber;  // chapter number
+    private int verseNumber;    // verse number
+    private String text;        // the text of the verse
+    //private int weight;       // not sure how weights of nodes will be determined, but I believe something like this will be required
 
     // neighbours and futureNeighbours should be complements of one another: together they make up all possible neighbours. They must be disjoint sets.
     private List<BibleNode> neighbours; // contains list of instantiated neighbours (neighbours for which we have created a BibleNode object)
     private List<FutureNeighbour> futureNeighbours; // contains list of uninstantiated neighbours (objects representing edges to nodes that we have not created yet)
 
+    /**
+     * BibleNode - Constructor
+     * 
+     * @param book book name in short form (eg Ge, Ex etc.)
+     * @param chapterNumber the chapter number
+     * @param verseNumber the verse number
+     * @param text the verse text
+     * @param narr neighbours array in JSON form as we will have just pulled this from the db
+     */
     public BibleNode(String book, int chapterNumber, int verseNumber, String text, JSONArray narr) {
         futureNeighbours = new ArrayList<FutureNeighbour>();
         neighbours = new ArrayList<BibleNode>();
@@ -31,10 +49,18 @@ public class BibleNode {
         addFutureNeighbours(narr);
     }
 
+    /**
+     * getVerseId - create a unique string using book, chapter and verse number for the node
+     * @return string like "Ge.1.1" to uniquely identify the verse
+     */
     public String getVerseId() {
         return book + "." + chapterNumber + "." + verseNumber;
     }
 
+    /**
+     * addNeighbour - adds the BibleNode object of a new neighbour to this node's neigbours List
+     * @param newNeighbour the new neighbour
+     */
     public void addNeighbour(BibleNode newNeighbour) {
         neighbours.add(newNeighbour);
     }
@@ -56,14 +82,6 @@ public class BibleNode {
         }
 
         futureNeighbours = sortFutureNeighbours(futureNeighbours); // sort them!
-    }
-
-    // just a debug function to check that everything is good.
-    private void printFutureNeighbours() {
-        for (int i = 0; i < futureNeighbours.size(); i++) {
-            FutureNeighbour fn = futureNeighbours.get(i);
-            fn.print();
-        }
     }
 
     /**
@@ -115,6 +133,7 @@ public class BibleNode {
     //     return this.weight;
     // }
 
+    // for printing a node to see what it contains
     public void print() {
         Pr.x("**********************************************************");
         Pr.x(book + "." + chapterNumber + "." + verseNumber + ": " + text);
@@ -124,9 +143,14 @@ public class BibleNode {
             Pr.x(bn.getVerseId());
         }
         Pr.x("**********************************************************");
-        // Pr.x("Chapter: " + chapterNumber);
-        // Pr.x("Verse: " + verseNumber);
-        // Pr.x("Text: " + text);
+    }
+
+    // just a debug function to check that everything is good.
+    public void printFutureNeighbours() {
+        for (int i = 0; i < futureNeighbours.size(); i++) {
+            FutureNeighbour fn = futureNeighbours.get(i);
+            fn.print();
+        }
     }
 
 }
@@ -146,15 +170,3 @@ class FutureNeighbour {
         Pr.x("WEIGHT: " + weight);
     }
 }
-
-
-/*
-    * At this point, another consideration needs to be made:
-    * We have an edgelist stored for a vertex in the database. At a particular point in the creation of a graph, we might not have instantiated
-    * all of these edges (have not created nodes for their destination and stored a reference to the destination on the source)
-    * 
-    * So I think what needs to be done is we keep a list of edges on the node in addition to the actual edges that we store.
-    * So we have potential edges and instantiated edges or something to that effect. It would make sense if these 2 sets were complements of each other:
-    * in other words potential edges will contain all the edges if none are instantiated. If some are instantiated it will only contain those edges
-    * that are not instantiated. Then the union of these 2 sets will give us all of the edges leaving the current node.
-    */
