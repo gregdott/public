@@ -58,13 +58,11 @@ class DisplayEdge {
 }
 
 public class GraphVis extends JPanel {
-    int nodeSize = 60;
-
-    List<Color> nodeColours;
+    int nodeSize = 60; // the width and height of each node
+    List<Color> nodeColours; // List of colours for the nodes
     List<DisplayNode> displayNodes = new ArrayList<DisplayNode>();
-    //List<Line2D.Float> edges = new ArrayList<Line2D.Float>();
     List<DisplayEdge> edges = new ArrayList<DisplayEdge>();
-    Hashtable<String, DisplayNode> nodeMap = new Hashtable<String, DisplayNode>();
+    Hashtable<String, DisplayNode> nodeMap = new Hashtable<String, DisplayNode>(); // used to find a DisplayNode object given the verseId ("Ge.1.1" etc.)
 
     MovementAdapter ma = new MovementAdapter();
 
@@ -91,54 +89,11 @@ public class GraphVis extends JPanel {
         createEdges();
     }
 
-    void createEdges() {
-        for(DisplayNode dn: displayNodes) {
-            BibleNode bn = dn.bn;
-            List<BibleNode> neighbours = bn.getNeighbours();
-            for (BibleNode neigh: neighbours) {
-                DisplayNode ndn = nodeMap.get(neigh.getVerseId()); // get the DisplayNode object for the neighbour so we know where to send the line to.
-                DisplayEdge newEdge = new DisplayEdge(dn, ndn);
-                edges.add(newEdge);
-            }
-        }
-    }
-
-    void traverseFromRootBFS(BibleNode root) {
-        List<BibleNode> nodesToVisit = new ArrayList<BibleNode>();
-        nodesToVisit.add(root);
-        int count = 0;
-
-        while(!nodesToVisit.isEmpty()) {
-            BibleNode cNode = nodesToVisit.get(0);
-            int[] coords = getNextCoodrinates(1600, 900, count, nodeSize); 
-            Ellipse2D.Float shape = new Ellipse2D.Float(coords[0], coords[1], nodeSize, nodeSize);
-
-            DisplayNode dn = new DisplayNode(shape, cNode);
-            displayNodes.add(dn);
-            nodeMap.put(cNode.getVerseId(), dn); // associate DisplayNode with verseId so that when we create edges we can find the correct graphics object node location
-            count++;
-
-            List<BibleNode> neighbours = cNode.getNeighbours();
-            for (int i = 0; i < neighbours.size(); i++) {
-                //Line2D.Float edge = new Line2D.Float() // can't do this here because we don't have destination yet... wait we can...
-                BibleNode cNeigh = neighbours.get(i);
-                nodesToVisit.add(cNeigh);
-            }
-            nodesToVisit.remove(0);
-        }
-    }
-
-    // For now just a basic thing to get the xy coords of the next graph node. Very simple and sequential
-    // will do something more elaborate at a later stage
-    private int[] getNextCoodrinates(int frameWidth, int frameHeight, int i, int width) {
-        int[] coords = new int[2];
-        int numPerLine = frameWidth/(width + 5);
-        int line = i/numPerLine;
-        coords[0] = (i%numPerLine)*(width + 5);
-        coords[1] = line*(width + 5);
-        return coords;
-    }
-
+    /**
+     * Gets called in the beginning and then each time repaint() is called, so when relevant mouse events
+     * happen. For now it just goes through our list of edges, paints them and then goes through the nodes
+     * and paints them.
+     */
     public void paint(Graphics g) {  
         
         super.paint(g);
@@ -176,6 +131,67 @@ public class GraphVis extends JPanel {
             circle.setColor(Color.BLACK);
             circle.drawString(bn.getVerseId(), shape.x + 5, shape.y + (nodeSize/2));
         }
+    }
+    
+    /**
+     * traverseFromRootBFS - starting at the root, visit all of its neighbours, create the necessary DisplayNode
+     * objects for each node found.
+     * 
+     * @param root BibleNode object of the first node in the graph. All other nodes can be found through this
+     */
+    void traverseFromRootBFS(BibleNode root) {
+        List<BibleNode> nodesToVisit = new ArrayList<BibleNode>();
+        nodesToVisit.add(root);
+        int count = 0;
+
+        while(!nodesToVisit.isEmpty()) {
+            BibleNode cNode = nodesToVisit.get(0);
+            int[] coords = getNextCoodrinates(1600, 900, count, nodeSize); 
+            Ellipse2D.Float shape = new Ellipse2D.Float(coords[0], coords[1], nodeSize, nodeSize);
+
+            DisplayNode dn = new DisplayNode(shape, cNode);
+            displayNodes.add(dn);
+            nodeMap.put(cNode.getVerseId(), dn); // associate DisplayNode with verseId so that when we create edges we can find the correct graphics object node location
+            count++;
+
+            List<BibleNode> neighbours = cNode.getNeighbours();
+            for (int i = 0; i < neighbours.size(); i++) {
+                //Line2D.Float edge = new Line2D.Float() // can't do this here because we don't have destination yet... wait we can...
+                BibleNode cNeigh = neighbours.get(i);
+                nodesToVisit.add(cNeigh);
+            }
+            nodesToVisit.remove(0);
+        }
+    }
+
+    /**
+     * Go through the list of nodes and create a DisplayEdge object for each edge.
+     * DisplayEdge contains source and dest DisplayNode objects. We use the coordinates
+     * from them to draw the line for the edge.
+     */
+    void createEdges() {
+        for(DisplayNode dn: displayNodes) {
+            BibleNode bn = dn.bn;
+            List<BibleNode> neighbours = bn.getNeighbours();
+            for (BibleNode neigh: neighbours) {
+                DisplayNode ndn = nodeMap.get(neigh.getVerseId()); // get the DisplayNode object for the neighbour so we know where to send the line to.
+                DisplayEdge newEdge = new DisplayEdge(dn, ndn);
+                edges.add(newEdge);
+            }
+        }
+    }
+
+    
+
+    // For now just a basic thing to get the xy coords of the next graph node. Very simple and sequential
+    // will do something more elaborate at a later stage
+    private int[] getNextCoodrinates(int frameWidth, int frameHeight, int i, int width) {
+        int[] coords = new int[2];
+        int numPerLine = frameWidth/(width + 5);
+        int line = i/numPerLine;
+        coords[0] = (i%numPerLine)*(width + 5);
+        coords[1] = line*(width + 5);
+        return coords;
     }
 
     // temporary...
