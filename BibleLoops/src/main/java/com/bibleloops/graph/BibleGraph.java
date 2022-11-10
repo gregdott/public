@@ -22,7 +22,6 @@ import java.util.logging.Level;
  * 
  * Class for creating graphs from Biblical data in various ways and interacting with them
  * 
- * Job.30.2 - no edges leaving it!
  */
 
 public class BibleGraph {
@@ -80,44 +79,6 @@ public class BibleGraph {
         traverseFromRootDFS();
     }
 
-    public int getSize() {
-        return bibleNodes.size();
-    }
-
-    public BibleNode getRoot() {
-        return bibleNodes.get(root);
-    }
-
-
-    /*
-     * In terms of graph creation, I am going to explore several possible ways of creating graphs:
-     * 
-     * Unconcsious Breadth-First (just expand all edges etc. from source node breadth-first until we reach our limit)
-     * Concsious Breadth-First (instead of expanding every possible edge, we only expand edges with certain weights - most sensibly greater than some value)
-     * Conscious Depth-First (Here we need to have some means of choosing which edge to follow, edge with greatest weight etc.)
-     * Unconscious Depth-First (Randomise the edge we follow)
-     * Depth-First Multiphase? (Depth-First construction up until some limit, then proceed again from source or perhaps a child... Needs thought)
-     * Randomised (randomly choose depth or breadth first approach for each node or something. some way of randomising how we move through)
-     * Alternating dfs & bfs?
-     * 
-     * So, the first thing that is needed is to sort the edges belonging to a node in descending order of weight.
-     * Then create separate graph building function here to build them 
-     */
-
-    /**
-     * uBFSCreate - initialise the graph using an unconscious breadth-first-search approach.
-     * This means that starting from the source vertex, we expand all edges and create nodes for neighbours,
-     * then we do the same for each neighbour sequentially until we reach our limit. We pay no attention to
-     * edge weights in this approach.
-     * 
-     * Not sure if this is even necessary.
-     * 
-     * @param limit the max number of nodes allowed
-     */
-    private static void uBFSCreate(int limit) {
-
-    }
-
     /**
      * cBFSCreate - initialise the graph using a conscious breadth-first-search approach.
      * This means that starting from the source vertex, we expand all edges but in order of edge weight (descending) 
@@ -128,6 +89,8 @@ public class BibleGraph {
      * 1. only edges over a certain weight
      * 2. restricted width (playing with this for now)
      * 
+     * More to be thought on and expanded. There are notes at the bottom of this file surrounding these ideas that need updating as well.
+     * 
      * @param limit the max number of nodes allowed
      */
     private void cBFSCreate(List<BibleNode> nodesToExplore, int limit, int width) {
@@ -137,15 +100,8 @@ public class BibleGraph {
         while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
             currentNode = nodesToExplore.get(0);
             List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
-            
-            // Pr.x(currentNode.getVerseId());
-            // for (int i = 0; i < fns.size(); i++) {
-            //     FutureNeighbour fn = fns.get(i);
-            //     fn.print();
-            // }
-            
-
             int edgeWidth = 0;
+
             while (nodeCount < limit && !fns.isEmpty() && edgeWidth < width) { // loop through future neighbours for current node
                 FutureNeighbour cfn = fns.get(0);
                 
@@ -164,34 +120,7 @@ public class BibleGraph {
             nodesToExplore.remove(0); // remove this node after having explored it
         }
     }
-
-    /**
-     * uDFSCreate - initialise the graph using an unconscious depth-first-search approach
-     * @param limit the max number of nodes allowed
-     */
-    private static void uDFSCreate(int limit) {
-
-    }
-
-    /* while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
-            currentNode = nodesToExplore.get(0);
-            List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
-            Pr.x("NODE COUNT: " + nodeCount);
-            while (nodeCount < limit && !fns.isEmpty()) { // loop through future neighbours for current node
-                FutureNeighbour cfn = fns.get(0);
-                
-                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
-                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
-                    BibleNode newNode = getNodeFromString(cfn.nodeId);
-                    bibleNodes.put(cfn.nodeId, newNode);
-                    nodesToExplore.add(newNode);
-                    currentNode.addNeighbour(newNode);
-                    nodeCount++;
-                }
-                fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
-            }
-            nodesToExplore.remove(0); // remove this node after having explored it
-        }*/
+    
     /**
      * cDFSCreate - initialise the graph using a conscious depth-first-search approach
      * 
@@ -239,27 +168,13 @@ public class BibleGraph {
         }
     }
 
-    private void traverseFromRootDFS() {
-        BibleNode currentNode = bibleNodes.get(root);
-
-        while (currentNode.getNeighbours().size() > 0) {
-            currentNode.print();
-            currentNode = currentNode.getNeighbours().get(0);
-        }
-    }
-
-    private void printGraph() {
-        Enumeration<String> iterator = bibleNodes.keys();
-        while(iterator.hasMoreElements()) {
-            String key = iterator.nextElement();
-            BibleNode bn = bibleNodes.get(key);
-            // Pr.x("===========================================");
-            // Pr.x("KEY: " + key);
-            bn.print();
-        }
-    }
-
-    // given a string (usually from an edge representing a destination node), get the BibleNode for it. so parse the string and find the verse.
+    /**
+     * getNodeFromString -  given a verseId string like "Ge.1.1", break it into its components of book,
+     * chapter number and verse number and get the matching verse from the database.
+     * 
+     * @param vString verse string eg: "Ge.1.1"
+     * @return BibleNode object representing the verse found
+     */
     private BibleNode getNodeFromString(String vString) {
         String[] destBits = vString.split("\\.");
         String book = destBits[0];
@@ -271,7 +186,6 @@ public class BibleGraph {
         String verseJSON = verseDoc.toJson();
         JSONObject vjo = new JSONObject(verseJSON);
         JSONArray narr = new JSONArray();
-        //vjo.getJSONArray("adj"); // neighbours
 
         if (vjo.has("adj")) {
             narr = vjo.getJSONArray("adj"); // neighbours
@@ -281,7 +195,13 @@ public class BibleGraph {
         return newNode;
     }
 
-    // will use somewhere at some point. just storing this here for now
+    /**
+     * getVerse - get a verse from the database given book, chapter number and verse number
+     * @param book the book name in short form (Ge, Ex etc.)
+     * @param chapterNum the chapter number
+     * @param verseNum the verse number
+     * @return Document object from mongodb
+     */
     public Document getVerse(String book, int chapterNum, int verseNum) {
         try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
 
@@ -297,5 +217,82 @@ public class BibleGraph {
             return doc;
         }
     }
-    
+
+    // get the number of nodes in the graph
+    public int getSize() {
+        return bibleNodes.size();
+    }
+
+    // get the root of the graph - the node we started from
+    public BibleNode getRoot() {
+        return bibleNodes.get(root);
+    }
+
+    /**
+     * Used for debug. Similar to printGraph except more illuminating in terms of graph structure
+     * Traverse the graph from the root and print each node. 
+     */
+    private void traverseFromRootDFS() {
+        BibleNode currentNode = bibleNodes.get(root);
+
+        while (currentNode.getNeighbours().size() > 0) {
+            currentNode.print();
+            currentNode = currentNode.getNeighbours().get(0);
+        }
+    }
+
+    /**
+     * Loop through list of BibleNodes and print each node. More of a debug function than anything.
+     */
+    public void printGraph() {
+        Enumeration<String> iterator = bibleNodes.keys();
+        while(iterator.hasMoreElements()) {
+            String key = iterator.nextElement();
+            BibleNode bn = bibleNodes.get(key);
+            bn.print();
+        }
+    }
+
+    //=====================================================================================================================
+    //???
+    /**
+     * uDFSCreate - initialise the graph using an unconscious depth-first-search approach
+     * Not so sure about this but leaving for now.
+     * @param limit the max number of nodes allowed
+     */
+    private static void uDFSCreate(int limit) {
+
+    }
+
+    /**
+     * uBFSCreate - initialise the graph using an unconscious breadth-first-search approach.
+     * This means that starting from the source vertex, we expand all edges and create nodes for neighbours,
+     * then we do the same for each neighbour sequentially until we reach our limit. We pay no attention to
+     * edge weights in this approach.
+     * 
+     * Not so sure about this but leaving for now.
+     * 
+     * @param limit the max number of nodes allowed
+     */
+    private static void uBFSCreate(int limit) {
+
+    }
+    //=====================================================================================================================
 }
+
+
+/* Graph creation thoughts... Needs elaboration as I have thought more on this since this was first written.
+
+     * In terms of graph creation, I am going to explore several possible ways of creating graphs:
+     * 
+     * Unconcsious Breadth-First (just expand all edges etc. from source node breadth-first until we reach our limit)
+     * Concsious Breadth-First (instead of expanding every possible edge, we only expand edges with certain weights - most sensibly greater than some value)
+     * Conscious Depth-First (Here we need to have some means of choosing which edge to follow, edge with greatest weight etc.)
+     * Unconscious Depth-First (Randomise the edge we follow)
+     * Depth-First Multiphase? (Depth-First construction up until some limit, then proceed again from source or perhaps a child... Needs thought)
+     * Randomised (randomly choose depth or breadth first approach for each node or something. some way of randomising how we move through)
+     * Alternating dfs & bfs?
+     * 
+     * So, the first thing that is needed is to sort the edges belonging to a node in descending order of weight.
+     * Then create separate graph building function here to build them 
+     */
