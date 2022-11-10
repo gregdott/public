@@ -46,7 +46,7 @@ Busy with:
 
 Next to implement:
 - Different ways of exploring graphs
-- Calculating Magnetism. This will be the node weight I reckon (I'm sure there is some graph theory term for it. Basically a value that is affected by how many edges come into a node, and how many edges come into the nodes that are along those edges and outwards in layers. So we can talk about a first-order, second-order etc. magnetism value. When I find out if there is a correct term for this in graph theory it will replace 'magnetism')
+- Calculating Magnetism. This will be the node weight. Magnetism will be derived from the degree of a node and the degrees of the nodes connected to it. Need to flesh this out properly.
 
 
 
