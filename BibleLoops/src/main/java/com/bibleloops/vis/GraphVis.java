@@ -13,6 +13,8 @@ import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.BasicStroke;
 import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Insets;
 import java.util.*;
 
 import java.awt.event.MouseAdapter;  
@@ -87,6 +89,10 @@ public class GraphVis extends JPanel {
     int frameWidth = 1600;
     int frameHeight = 900;
 
+    // RENAME!
+    JTextArea textArea;
+    JScrollPane scrollPane;
+
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(frameWidth, frameHeight);
@@ -101,7 +107,8 @@ public class GraphVis extends JPanel {
         //-----------------------------------------------------------------------------
 
 
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 31, "cbfs"); // init Bible Graph
+        //BibleGraph bg = new BibleGraph("Ge", 1, 1, 31, "cbfs"); // init Bible Graph
+        BibleGraph bg = new BibleGraph("Isa", 40, 31, 31, "cbfs"); // init Bible Graph
         //BibleGraph bg = new BibleGraph("Ge", 1, 4, 299, "cdfs"); // init Bible Graph
 
         JFrame frame = new JFrame("TESTING!");
@@ -116,6 +123,8 @@ public class GraphVis extends JPanel {
         
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        
     }
 
     public GraphVis(BibleGraph bg) {
@@ -126,6 +135,18 @@ public class GraphVis extends JPanel {
         BibleNode root = bg.getRoot();
         traverseFromRootBFS(root); // traverse our graph and draw the shapes
         createEdges();
+
+        // experimenting
+        //=========================================================================================
+        textArea = new JTextArea(5, 30);        
+        textArea.setMargin(new Insets(5, 5, 5, 5));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        scrollPane = new JScrollPane(textArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        
+        add(scrollPane);
+        //=========================================================================================
     }
 
     /**
@@ -177,8 +198,12 @@ public class GraphVis extends JPanel {
 
 
         if (showHoverBox) {
-            // Draw verse box if it should get displayed
             Graphics2D g2 = (Graphics2D)g;
+
+            //scrollPane.repaint(hoverVX, hoverVY, WIDTH, HEIGHT);
+            textArea.setText(hoverVerseText);
+            // Draw verse box if it should get displayed
+           
             g2.setColor(Color.decode("#F5EEF8"));
             g2.fillRoundRect(hoverVX, hoverVY, 400, 100, 10, 10);
             g2.setColor(Color.DARK_GRAY);
@@ -187,8 +212,8 @@ public class GraphVis extends JPanel {
             FontMetrics fm = g.getFontMetrics();
             int verseWidth = fm.stringWidth(hoverVerseText); // get verse width in pixels
 
-            // need a separate method for this...
-            if (verseWidth > 400) {
+            // need a separate method for this... might not need this with actual text area thing lol
+            if (verseWidth > 390) {
                 // split verse up and draw on multiple lines
                 String[] words = hoverVerseText.split(" ");            
                 String curSub = "";
@@ -199,7 +224,7 @@ public class GraphVis extends JPanel {
                     tmpSub += " " + w; // reconstruct with spaces between
                     int tmpWidth = fm.stringWidth(tmpSub);
 
-                    if (tmpWidth < 380) {
+                    if (tmpWidth < 390) {
                         curSub = tmpSub.trim(); // trim to get rid of first space inserted (this avoids a conditional)
                     } else {
                         g2.drawString(curSub, hoverVX + 5, lineCount*12 + hoverVY + 15);
@@ -299,7 +324,7 @@ public class GraphVis extends JPanel {
         int[] coords = new int[2];
         int row = getRow(i + 1); // the i we receive is 0-based. We want it 1-based for determining the row
         coords[0] = getColumn2(i + 1, frameWidth, row, width);
-        coords[1] = (row - 1)*(width + 50) + 5;
+        coords[1] = (row - 1)*(width + 50) + 110;
         return coords;
     }
 
@@ -310,10 +335,7 @@ public class GraphVis extends JPanel {
         }
         int numInRow = i - numPerRow;
         int sectionWidth = frameWidth/numPerRow;
-        Pr.x(sectionWidth);
-        Pr.x("Width: " + width);
         int column = (sectionWidth*(numInRow)) + (sectionWidth/2) - (width/2);
-        Pr.x("Column: " + column);
         return column;
     }
 
@@ -387,18 +409,18 @@ public class GraphVis extends JPanel {
     // temporary...
     private void initNodeColours() {
         nodeColours = new ArrayList<Color>();
-        /*for (int r=0; r<100; r = r + 2) nodeColours.add(new Color(r*255/100,       255,         0));
+        for (int r=0; r<100; r = r + 2) nodeColours.add(new Color(r*255/100,       255,         0));
         for (int g=100; g>0; g = g - 2) nodeColours.add(new Color(      255, g*255/100,         0));
         for (int b=0; b<100; b = b + 2) nodeColours.add(new Color(      255,         0, b*255/100));
         for (int r=100; r>0; r = r - 2) nodeColours.add(new Color(r*255/100,         0,       255));
         for (int g=0; g<100; g = g + 2) nodeColours.add(new Color(        0, g*255/100,       255));
-        for (int b=100; b>0; b = b - 2) nodeColours.add(new Color(        0,       255, b*255/100));*/
-        for (int r=0; r<100; r = r + 15) nodeColours.add(new Color(r*255/100,       255,         0));
-        for (int g=100; g>0; g = g - 15) nodeColours.add(new Color(      255, g*255/100,         0));
-        for (int b=0; b<100; b = b + 15) nodeColours.add(new Color(      255,         0, b*255/100));
-        for (int r=100; r>0; r = r - 15) nodeColours.add(new Color(r*255/100,         0,       255));
-        for (int g=0; g<100; g = g + 15) nodeColours.add(new Color(        0, g*255/100,       255));
-        for (int b=100; b>0; b = b - 15) nodeColours.add(new Color(        0,       255, b*255/100));
+        for (int b=100; b>0; b = b - 2) nodeColours.add(new Color(        0,       255, b*255/100));
+        /*for (int r=0; r<100; r = r + 5) nodeColours.add(new Color(r*255/100,       255,         0));
+        for (int g=100; g>0; g = g - 5) nodeColours.add(new Color(      255, g*255/100,         0));
+        for (int b=0; b<100; b = b + 5) nodeColours.add(new Color(      255,         0, b*255/100));
+        for (int r=100; r>0; r = r - 5) nodeColours.add(new Color(r*255/100,         0,       255));
+        for (int g=0; g<100; g = g + 5) nodeColours.add(new Color(        0, g*255/100,       255));
+        for (int b=100; b>0; b = b - 5) nodeColours.add(new Color(        0,       255, b*255/100));*/
         nodeColours.remove(0); // just because it looks identical to the next one in my setup. Not sure why...
     }
     
@@ -440,15 +462,11 @@ public class GraphVis extends JPanel {
                 for (int i = 0; i < displayNodes.size(); i++) {
                     Rectangle shape = displayNodes.get(i).shape;
                     if (shape.getBounds2D().contains(dx, dy)) {
-                        //Pr.x(displayNodes.get(i).bn.getVerseId());
-                        String verseId = displayNodes.get(i).bn.getVerseId();
                         String verseText = displayNodes.get(i).bn.getText();
                         hoverVerseText = verseText;
                         hoverVX = shape.x + nodeSize/2;
                         hoverVY = shape.y + nodeSize/2;
                         mustShowBox = true;
-                        //showHoverBox = true;                        
-                        //repaint();
                     }
                 }
                 showHoverBox = mustShowBox;
