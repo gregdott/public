@@ -295,6 +295,11 @@ public class GraphVis extends JPanel {
      * 1st row, middle of panel
      * 2nd row, just to either side of middle
      * 3rd row, again, based on number of elements in row, either side of middle.
+     * 
+     * What I need to do to improve the display is every row down, columns are closer together because we have more items
+     * 
+     * Another thought is dividing up the width of the frame over the number of nodes in the row, so each node is given equal space depending 
+     * on the number of nodes in the row. This will probably be the best.
      */
     private int getColumn(int i, int frameWidth, int row, int width) {
         if (i == 1) {
