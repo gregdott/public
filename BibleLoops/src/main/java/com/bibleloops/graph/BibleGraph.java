@@ -76,7 +76,7 @@ public class BibleGraph {
             //uDFSCreate(limit);
         }
         //printGraph();
-        traverseFromRootDFS();
+        //traverseFromRootDFS();
     }
 
     /**
