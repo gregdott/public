@@ -66,7 +66,7 @@ public class BibleGraph {
 
         if (mode == "cbfs") {            
             Pr.x("Constructing graph using Conscious Breadth First Method restricted by width (5)", "=");
-            cBFSCreate(nodesToExplore, limit, 10);
+            cBFSCreate(nodesToExplore, limit, 2);
         } else if (mode == "ubfs") {
             //uBFSCreate(limit);
         } else if (mode == "cdfs") {
@@ -96,25 +96,35 @@ public class BibleGraph {
     private void cBFSCreate(List<BibleNode> nodesToExplore, int limit, int width) {
         int nodeCount = 1;
         BibleNode currentNode;
-
+        
         while(nodeCount < limit && !nodesToExplore.isEmpty()) { // nodesToExplore will probably never be empty at the level we will be working at... unless we place conditions on edge weights...
             currentNode = nodesToExplore.get(0);
             List<FutureNeighbour> fns = currentNode.getFutureNeighbours();
             int edgeWidth = 0;
-
+            
             while (nodeCount < limit && !fns.isEmpty() && edgeWidth < width) { // loop through future neighbours for current node
                 FutureNeighbour cfn = fns.get(0);
-                
-                // ignoring hyphenated entries for now (some verse to another). need to figure out how to deal with these. Multiple edges?
-                // or maybe just link to first verse for now. OR ensure that link goes from first verse to subsequent verses in sequence. That is logical...
-                if (!cfn.nodeId.contains("-") && !bibleNodes.containsKey(cfn.nodeId)) { // also don't want to create nodes that already exist
-                    BibleNode newNode = getNodeFromString(cfn.nodeId);
-                    bibleNodes.put(cfn.nodeId, newNode);
+                String nodeId = cfn.nodeId;
+                if (nodeId.contains("-")) {
+                    nodeId = nodeId.split("-")[0];
+                }
+
+                if (!bibleNodes.containsKey(nodeId)) {
+                    BibleNode newNode = getNodeFromString(nodeId);
+                    bibleNodes.put(nodeId, newNode);
                     nodesToExplore.add(newNode);
                     currentNode.addNeighbour(newNode);
                     nodeCount++;
                     edgeWidth++;
+                } else if(bibleNodes.containsKey(nodeId)) { // node already exists... just link
+                    // What is going on??? some weird infinite loopy thing happening here. Should not even be getting here as far as I can tell at the moment    
+                    //Pr.x("????????????????????");
+                    // BibleNode node = bibleNodes.get(nodeId);
+                    // currentNode.addNeighbour(node);
+                    // edgeWidth++;
                 }
+                
+
                 fns.remove(0); // when we remove from here, we are also removing the entry on the node which we want
             }
             nodesToExplore.remove(0); // remove this node after having explored it
@@ -134,7 +144,7 @@ public class BibleGraph {
      * Need a way to deal with this sort of case.
      
      * **************************************************************************
-
+    TODO: update for new way with hyphens
      * @param limit the max number of nodes allowed
      */
     private void cDFSCreate(List<BibleNode> nodesToExplore, int limit) {

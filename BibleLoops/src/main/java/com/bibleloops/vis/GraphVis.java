@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.RenderingHints;
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.BasicStroke;
 import java.util.*;
@@ -39,7 +40,6 @@ import java.awt.event.MouseEvent;
 
 
 class DisplayNode {
-    //Ellipse2D.Float shape;
     Rectangle shape;
     BibleNode bn;
 
@@ -70,13 +70,19 @@ public class GraphVis extends JPanel {
     List<DisplayEdge> edges = new ArrayList<DisplayEdge>();
     Hashtable<String, DisplayNode> nodeMap = new Hashtable<String, DisplayNode>(); // used to find a DisplayNode object given the verseId ("Ge.1.1" etc.)
 
+    Rectangle hoverVerseBox = new Rectangle(100, 200);
+    boolean showHoverBox = false;
+    int hoverVX, hoverVY;
+    String hoverVerseText = "";
+
     MovementAdapter ma = new MovementAdapter();
 
     public static void main(String args[]) {
 
         //Pr.x(BookMap.getBook("Re"));
 
-        BibleGraph bg = new BibleGraph("Ge", 1, 1, 40, "cbfs"); // init Bible Graph
+        BibleGraph bg = new BibleGraph("Ge", 1, 1, 31, "cbfs"); // init Bible Graph
+        //BibleGraph bg = new BibleGraph("Ge", 1, 4, 299, "cdfs"); // init Bible Graph
 
         JFrame frame = new JFrame("TESTING!");
         GraphVis m = new GraphVis(bg);
@@ -129,7 +135,6 @@ public class GraphVis extends JPanel {
 
         // Then paint the nodes
         for (int i = 0; i < displayNodes.size(); i++) {
-            //Ellipse2D.Float shape = displayNodes.get(i).shape;
             Rectangle shape = displayNodes.get(i).shape;
             BibleNode bn = displayNodes.get(i).bn;
             Graphics2D g2 = (Graphics2D) g;
@@ -145,6 +150,50 @@ public class GraphVis extends JPanel {
             g2.setColor(Color.BLACK);
             g2.drawString(bn.getVerseId(), shape.x + 5, shape.y + 15);
         }
+
+
+        if (showHoverBox) {
+            // Draw verse box if it should get displayed
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setColor(Color.decode("#F5EEF8"));
+            g2.fillRoundRect(hoverVX, hoverVY, 400, 100, 10, 10);
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawRoundRect(hoverVX, hoverVY, 400, 100, 10, 10);
+
+            FontMetrics fm = g.getFontMetrics();
+            int verseWidth = fm.stringWidth(hoverVerseText); // get verse width in pixels
+
+            // need a separate method for this...
+            if (verseWidth > 400) {
+                // split verse up and draw on multiple lines
+                String[] words = hoverVerseText.split(" ");            
+                String curSub = "";
+                String tmpSub = "";
+                int lineCount = 0;
+
+                for(String w: words) {
+                    tmpSub += " " + w; // reconstruct with spaces between
+                    int tmpWidth = fm.stringWidth(tmpSub);
+
+                    if (tmpWidth < 390) {
+                        curSub = tmpSub.trim(); // trim to get rid of first space inserted (this avoids a conditional)
+                    } else {
+                        g2.drawString(curSub, hoverVX + 5, lineCount*12 + hoverVY + 15);
+                        lineCount++;
+                        curSub = w; // start next line with word that took us over the limit
+                        tmpSub = curSub;
+                    }
+                }
+                g2.drawString(curSub, hoverVX + 5, lineCount*12 + hoverVY + 15); // last line to print (hasn't been printed because we have not exceeded bounds.)
+
+                
+                
+            } else {
+                g2.drawString(hoverVerseText, hoverVX + 5, hoverVY + 15);
+            }
+        }
+        
+        
     }
     
     /**
@@ -160,8 +209,7 @@ public class GraphVis extends JPanel {
 
         while(!nodesToVisit.isEmpty()) {
             BibleNode cNode = nodesToVisit.get(0);
-            int[] coords = getNextCoodrinates(1600, 900, count, nodeSize); 
-            //Ellipse2D.Float shape = new Ellipse2D.Float(coords[0], coords[1], nodeSize, nodeSize);
+            int[] coords = getNextCoodrinates(1600, 900, count, nodeSize);
             Rectangle shape = new Rectangle(coords[0], coords[1], nodeSize, nodeSize);
             
             DisplayNode dn = new DisplayNode(shape, cNode);
@@ -212,13 +260,18 @@ public class GraphVis extends JPanel {
     // temporary...
     private void initNodeColours() {
         nodeColours = new ArrayList<Color>();
-        for (int r=0; r<100; r = r + 5) nodeColours.add(new Color(r*255/100,       255,         0));
-        for (int g=100; g>0; g = g - 5) nodeColours.add(new Color(      255, g*255/100,         0));
-        for (int b=0; b<100; b = b + 5) nodeColours.add(new Color(      255,         0, b*255/100));
-        for (int r=100; r>0; r = r - 5) nodeColours.add(new Color(r*255/100,         0,       255));
-        for (int g=0; g<100; g = g + 5) nodeColours.add(new Color(        0, g*255/100,       255));
-        for (int b=100; b>0; b = b - 5) nodeColours.add(new Color(        0,       255, b*255/100));
-        
+        /*for (int r=0; r<100; r = r + 2) nodeColours.add(new Color(r*255/100,       255,         0));
+        for (int g=100; g>0; g = g - 2) nodeColours.add(new Color(      255, g*255/100,         0));
+        for (int b=0; b<100; b = b + 2) nodeColours.add(new Color(      255,         0, b*255/100));
+        for (int r=100; r>0; r = r - 2) nodeColours.add(new Color(r*255/100,         0,       255));
+        for (int g=0; g<100; g = g + 2) nodeColours.add(new Color(        0, g*255/100,       255));
+        for (int b=100; b>0; b = b - 2) nodeColours.add(new Color(        0,       255, b*255/100));*/
+        for (int r=0; r<100; r = r + 15) nodeColours.add(new Color(r*255/100,       255,         0));
+        for (int g=100; g>0; g = g - 15) nodeColours.add(new Color(      255, g*255/100,         0));
+        for (int b=0; b<100; b = b + 15) nodeColours.add(new Color(      255,         0, b*255/100));
+        for (int r=100; r>0; r = r - 15) nodeColours.add(new Color(r*255/100,         0,       255));
+        for (int g=0; g<100; g = g + 15) nodeColours.add(new Color(        0, g*255/100,       255));
+        for (int b=100; b>0; b = b - 15) nodeColours.add(new Color(        0,       255, b*255/100));
         nodeColours.remove(0); // just because it looks identical to the next one in my setup. Not sure why...
     }
     
@@ -251,16 +304,41 @@ public class GraphVis extends JPanel {
             dragging = -1;
         }
 
+        public void mouseMoved(MouseEvent e) {
+            int dx = e.getX();
+            int dy = e.getY();
+            
+            if (dragging == -1) {
+                boolean mustShowBox = false;
+                for (int i = 0; i < displayNodes.size(); i++) {
+                    Rectangle shape = displayNodes.get(i).shape;
+                    if (shape.getBounds2D().contains(dx, dy)) {
+                        //Pr.x(displayNodes.get(i).bn.getVerseId());
+                        String verseId = displayNodes.get(i).bn.getVerseId();
+                        String verseText = displayNodes.get(i).bn.getText();
+                        hoverVerseText = verseText;
+                        hoverVX = shape.x + nodeSize/2;
+                        hoverVY = shape.y + nodeSize/2;
+                        mustShowBox = true;
+                        //showHoverBox = true;                        
+                        //repaint();
+                    }
+                }
+                showHoverBox = mustShowBox;
+                repaint();
+            }
+        }
+
         public void mouseDragged(MouseEvent e) {
 
             int dx = e.getX() - x;
             int dy = e.getY() - y;
             
             for (int i = 0; i < displayNodes.size(); i++) {
-                //Ellipse2D.Float shape = displayNodes.get(i).shape;
                 Rectangle shape = displayNodes.get(i).shape;
                 
                 if (shape.getBounds2D().contains(x, y) && (dragging == i || dragging == -1)) {
+                    showHoverBox = false;
                     dragging = i;
                     shape.x += dx;
                     shape.y += dy;
