@@ -8,7 +8,7 @@ Sample graph created with Bible Loops:
 ❗NOTE❗
 This is very much in progress at the moment. Anyone happening upon this may find it in a partially working state.
 
-The Bible has 31 102 verses in it. I found a file on openbible.info that contains 344 790 cross references. What we have is a gigantic graph. I'm not sure where this project is going, and it might have little point to it, but it will be interesting for me nonetheless.
+The Bible has 31 102 verses in it. There is a file on openbible.info that contains 344 790 cross references. This is a gigantic graph. It's hard to say where this project is going, and it might have little point to it, but it will be interesting for me nonetheless. At the very least, it will provide an interesting way to explore the Bible.
 
 The thing that inspired this idea was the visual that Chris Harrison created using 63 779 cross references in the Bible. You can find out more about this on his website: https://www.chrisharrison.net/index.php/Visualizations/BibleViz. The image is given below:
 
