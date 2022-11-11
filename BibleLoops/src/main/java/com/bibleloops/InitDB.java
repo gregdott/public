@@ -2,7 +2,7 @@ package com.bibleloops;
 
 
 import java.io.BufferedReader;
-//import java.io.File;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -84,16 +84,17 @@ public class InitDB {
      * @throws IOException
      */
     private static void createTablesFromVerses() throws IOException  {
-        // File directory = new File(""); // this is here to help you find where your ide is looking for files from in case you need it... :)
-        // System.out.println(directory.getAbsolutePath());
+        File directory = new File(""); // this is here to help you find where your ide is looking for files from in case you need it... :)
+        System.out.println(directory.getAbsolutePath());
         
         // depending on your IDE setup you may need to adjust the path below slightly. This assumes your setup is looking from the bibleloops folder as the root
-        try(BufferedReader br = new BufferedReader(new FileReader("src/main/resources/kjv.txt"))) {
+        try(BufferedReader br = new BufferedReader(new FileReader("BibleLoops/src/main/resources/kjv.txt"))) {
             String line = br.readLine();
-
+            int verseCount = 0;
             while (line != null) {
+                verseCount++;
                 String text = line.toString();
-                insertVerse(text); // insert the verse into the db
+                insertVerse(text, verseCount); // insert the verse into the db
                 line = br.readLine();
             }
         }
@@ -104,7 +105,7 @@ public class InitDB {
      * @throws IOException
      */
     private static void addReferencesToVerses() throws IOException {
-        try(BufferedReader br = new BufferedReader(new FileReader("src/main/resources/cross_references.txt"))) {
+        try(BufferedReader br = new BufferedReader(new FileReader("BibleLoops/src/main/resources/cross_references.txt"))) {
             
             String line = br.readLine();
             
@@ -120,7 +121,7 @@ public class InitDB {
      * insertVerse - insert verse into relevant db table. 
      * @param verse
      */
-    private static void insertVerse(String verse) {        
+    private static void insertVerse(String verse, int verseCount) {        
         //--------------------------------------------------------------------------------------------------------------------
         // Process verse string. Get book, chapter and verse number. Also get the text of the verse by itself.
         // eg. " Ge 1:1 In the beginning God created the heaven and the earth."
@@ -146,6 +147,7 @@ public class InitDB {
             MongoCollection<Document> bCol = db.getCollection(book);
 
             Document verseDocument = new Document("_id", new ObjectId());
+            verseDocument.append("index", verseCount); // literally the line number from kjv.txt. this makes distance calculations simple
             verseDocument.append("chapter", chapterNum);
             verseDocument.append("verse", verseNum);
             verseDocument.append("text", verseText);

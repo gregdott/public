@@ -28,15 +28,15 @@ public final class App {
 
     public static void main(String[] args) throws IOException{
         
-        //*****************************************************************************************************************************************************
-        //InitDB.readFilesAndInitDB(); // for initialising the database - once done, we don't need to do this again unless data gets corrupted or changed
-        //*****************************************************************************************************************************************************
+        
         //-----------------------------------------------------------------------------
         // removes annoying mongo log messages (and makes annoying code that has little purpose other than that appear. dubious)
         Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
         mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
         //-----------------------------------------------------------------------------
-
+        //*****************************************************************************************************************************************************
+        //InitDB.readFilesAndInitDB(); // for initialising the database - once done, we don't need to do this again unless data gets corrupted or changed
+        //*****************************************************************************************************************************************************
 
         //BibleGraph bg = new BibleGraph("Ge", 1, 1, 10, "cbfs");
         
