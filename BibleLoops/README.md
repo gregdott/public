@@ -2,7 +2,7 @@
 
 Sample graph created with Bible Loops:
 
-<img src="https://raw.githubusercontent.com/gregdott/public/main/BibleLoops/BibleGraphSample.png" width="800">
+<img src="https://github.com/gregdott/public/blob/main/BibleLoops/binary%20sample%202.png?raw=true" width="800">
 
 
 ❗NOTE❗
