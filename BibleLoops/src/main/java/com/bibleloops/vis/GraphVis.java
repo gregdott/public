@@ -17,6 +17,12 @@ import java.util.*;
 import java.awt.event.MouseAdapter;  
 import java.awt.event.MouseEvent;
 
+//-----------------------------------------------------------------------------
+// for removing annoying mongodb log messages
+import java.util.logging.Logger;
+import java.util.logging.Level;
+//-----------------------------------------------------------------------------
+
 /*
  * Author: Gregory Dott
  * 09-11-2022
@@ -79,7 +85,12 @@ public class GraphVis extends JPanel {
 
     public static void main(String args[]) {
 
-        //Pr.x(BookMap.getBook("Re"));
+        //-----------------------------------------------------------------------------
+        // removes annoying mongo log messages
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE); // e.g. or Log.WARNING, etc.
+        //-----------------------------------------------------------------------------
+
 
         BibleGraph bg = new BibleGraph("Ge", 1, 1, 31, "cbfs"); // init Bible Graph
         //BibleGraph bg = new BibleGraph("Ge", 1, 4, 299, "cdfs"); // init Bible Graph
@@ -175,7 +186,7 @@ public class GraphVis extends JPanel {
                     tmpSub += " " + w; // reconstruct with spaces between
                     int tmpWidth = fm.stringWidth(tmpSub);
 
-                    if (tmpWidth < 390) {
+                    if (tmpWidth < 380) {
                         curSub = tmpSub.trim(); // trim to get rid of first space inserted (this avoids a conditional)
                     } else {
                         g2.drawString(curSub, hoverVX + 5, lineCount*12 + hoverVY + 15);
@@ -209,7 +220,9 @@ public class GraphVis extends JPanel {
 
         while(!nodesToVisit.isEmpty()) {
             BibleNode cNode = nodesToVisit.get(0);
-            int[] coords = getNextCoodrinates(1600, 900, count, nodeSize);
+            //int[] coords = getNextCoodrinates(1600, 900, count, nodeSize);
+            int[] coords = getNextCoordinatesBT(1600, 900, count, nodeSize);
+            
             Rectangle shape = new Rectangle(coords[0], coords[1], nodeSize, nodeSize);
             
             DisplayNode dn = new DisplayNode(shape, cNode);
@@ -255,6 +268,88 @@ public class GraphVis extends JPanel {
         coords[0] = (i%numPerLine)*(width + 5) + 5;
         coords[1] = line*(width + 5) + 5;
         return coords;
+    }
+
+    /**
+     * get the coordinates of the next node when displaying a binary tree (BT)
+     * Starting with this because its simpler and easier to calculate than for ones where nodes have way 
+     * more neighbours/children
+     * 
+     * @param frameWidth
+     * @param frameHeight
+     * @param i
+     * @param width is equal to height. probably wrong name
+     * @return
+     */
+    private int[] getNextCoordinatesBT(int frameWidth, int frameHeight, int i, int width) {
+        int[] coords = new int[2];
+        int row = getRow(i + 1); // the i we receive is 0-based. We want it 1-based for determining the row
+        //coords[0] = i*(width + 5) + 5;
+        coords[0] = getColumn(i + 1, frameWidth, row, width);
+        coords[1] = (row - 1)*(width + 50) + 5;
+        return coords;
+    }
+
+    /*
+     * For getting the column:
+     * 1st row, middle of panel
+     * 2nd row, just to either side of middle
+     * 3rd row, again, based on number of elements in row, either side of middle.
+     */
+    private int getColumn(int i, int frameWidth, int row, int width) {
+        if (i == 1) {
+            return frameWidth/2;
+        } else {
+            int numPerRow = 2;
+            for (int j = 2; j < row; j++) {
+                numPerRow *= 2;
+            }
+            
+            // using num per row, we need to figure out which number in the row we are on
+            int numInRow = i - numPerRow; // numPerRow is also the 1-based index of the first element
+            int startOfRow = ((frameWidth/2)+(width/2)) - ((width + 30)*(numPerRow/2));
+            int pos = startOfRow + ((width + 30)*(numInRow));
+            return pos;
+            
+        }
+    }
+
+    // based on binary tree structure, given a node number, determine which row it should be in.
+    private int getRow(int i) {
+        // we basically need to get the next power of 2 from the number
+        // then figure out what power of 2 it is and we have the row. WRONG
+        // Look here:
+        /* 
+         * 1-based:
+         * 1        = row 1
+         * 2-3      = row 2
+         * 4-7      = row 3
+         * 8-15     = row 4
+         * 16-32    = row 5
+         * 
+         * First row has 1
+         * Second row has 2
+         * Third row has 4
+         * Fourth row has 8
+         * Fifth row has 16
+         * 
+         * Using 1-based i:
+         * Find the nearest power of 2 equal to i or just below. The index of that will give the row number
+    
+         */
+
+        int fpo2 = 1; // zeroth power of 2
+        int spo2 = 2;
+        int row = 1;
+        
+        // as soon as i >= powerOf2 we are in the correct row
+        while (!(i >= fpo2 && i < spo2)) {
+            fpo2 = spo2;
+            spo2 = spo2*2;
+            row++;
+        }
+        
+        return row;
     }
 
     // temporary...
