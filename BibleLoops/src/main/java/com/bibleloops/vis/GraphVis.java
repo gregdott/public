@@ -307,7 +307,7 @@ public class GraphVis extends JPanel {
             
             // using num per row, we need to figure out which number in the row we are on
             int numInRow = i - numPerRow; // numPerRow is also the 1-based index of the first element
-            int startOfRow = ((frameWidth/2)+(width/2)) - ((width + 30)*(numPerRow/2));
+            int startOfRow = ((frameWidth/2)+(width/2 + 15)) - ((width + 30)*(numPerRow/2));
             int pos = startOfRow + ((width + 30)*(numInRow));
             return pos;
             
