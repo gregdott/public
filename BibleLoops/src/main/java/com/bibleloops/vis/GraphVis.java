@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.BasicStroke;
+import java.awt.Dimension;
 import java.util.*;
 
 import java.awt.event.MouseAdapter;  
@@ -83,6 +84,14 @@ public class GraphVis extends JPanel {
 
     MovementAdapter ma = new MovementAdapter();
 
+    int frameWidth = 1600;
+    int frameHeight = 900;
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(frameWidth, frameHeight);
+    }
+
     public static void main(String args[]) {
 
         //-----------------------------------------------------------------------------
@@ -98,9 +107,13 @@ public class GraphVis extends JPanel {
         JFrame frame = new JFrame("TESTING!");
         GraphVis m = new GraphVis(bg);
         m.setDoubleBuffered(true);
-        frame.add(m);
+        //frame.add(m);
+        frame.setContentPane(m);
+        frame.pack();
+        frame.setMinimumSize(frame.getSize());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1600, 900);
+        //frame.setSize(1600, 900);
+        
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
@@ -221,6 +234,7 @@ public class GraphVis extends JPanel {
         while(!nodesToVisit.isEmpty()) {
             BibleNode cNode = nodesToVisit.get(0);
             //int[] coords = getNextCoodrinates(1600, 900, count, nodeSize);
+
             int[] coords = getNextCoordinatesBT(1600, 900, count, nodeSize);
             
             Rectangle shape = new Rectangle(coords[0], coords[1], nodeSize, nodeSize);
@@ -284,10 +298,23 @@ public class GraphVis extends JPanel {
     private int[] getNextCoordinatesBT(int frameWidth, int frameHeight, int i, int width) {
         int[] coords = new int[2];
         int row = getRow(i + 1); // the i we receive is 0-based. We want it 1-based for determining the row
-        //coords[0] = i*(width + 5) + 5;
-        coords[0] = getColumn(i + 1, frameWidth, row, width);
+        coords[0] = getColumn2(i + 1, frameWidth, row, width);
         coords[1] = (row - 1)*(width + 50) + 5;
         return coords;
+    }
+
+    private int getColumn2(int i, int frameWidth, int row, int width) {
+        int numPerRow = 1;
+        for (int j = 1; j < row; j++) {
+            numPerRow *= 2;
+        }
+        int numInRow = i - numPerRow;
+        int sectionWidth = frameWidth/numPerRow;
+        Pr.x(sectionWidth);
+        Pr.x("Width: " + width);
+        int column = (sectionWidth*(numInRow)) + (sectionWidth/2) - (width/2);
+        Pr.x("Column: " + column);
+        return column;
     }
 
     /*
@@ -301,9 +328,9 @@ public class GraphVis extends JPanel {
      * Another thought is dividing up the width of the frame over the number of nodes in the row, so each node is given equal space depending 
      * on the number of nodes in the row. This will probably be the best.
      */
-    private int getColumn(int i, int frameWidth, int row, int width) {
+    private int getColumn1(int i, int frameWidth, int row, int width) {
         if (i == 1) {
-            return frameWidth/2;
+            return (frameWidth/2) - (width/2);
         } else {
             int numPerRow = 2;
             for (int j = 2; j < row; j++) {
@@ -312,7 +339,7 @@ public class GraphVis extends JPanel {
             
             // using num per row, we need to figure out which number in the row we are on
             int numInRow = i - numPerRow; // numPerRow is also the 1-based index of the first element
-            int startOfRow = ((frameWidth/2)+(width/2 + 15)) - ((width + 30)*(numPerRow/2));
+            int startOfRow = ((frameWidth/2)) - ((width + 30)*(numPerRow/2));
             int pos = startOfRow + ((width + 30)*(numInRow));
             return pos;
             
